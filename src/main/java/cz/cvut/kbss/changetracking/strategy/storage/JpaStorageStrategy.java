@@ -52,7 +52,7 @@ public class JpaStorageStrategy implements StorageStrategy {
     var cb = em.getCriteriaBuilder();
     var cq = cb.createQuery(ChangeVector.class);
     var root = cq.from(ChangeVector.class);
-    var predicates = new ArrayList<>(List.of(cb.gt(root.get("timestamp").as(Long.class), timestamp.toEpochMilli())));
+    var predicates = new ArrayList<>(List.of(cb.ge(root.get("timestamp").as(Long.class), timestamp.toEpochMilli())));
     if (objectType != null) {
       predicates.add(cb.equal(root.get("objectType"), objectType));
     }
