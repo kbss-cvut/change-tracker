@@ -5,7 +5,9 @@ import cz.cvut.kbss.changetracking.model.ChangeVector;
 import cz.cvut.kbss.changetracking.strategy.entity.EntityStrategy;
 import cz.cvut.kbss.changetracking.strategy.storage.StorageStrategy;
 
+import java.time.Instant;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 // TODO: deal with EntityStrategy generics
@@ -63,5 +65,26 @@ public class ChangeTracker {
   public <T> void compareAndSave(T older, T newer) {
     var vectors = compare(older, newer);
     storageStrategy.save(vectors.toArray(ChangeVector[]::new));
+  }
+
+  /**
+   * Wrapper method for {@link StorageStrategy#getAllForObject(String, String)}.
+   */
+  public List<ChangeVector> getAllForObject(String objectType, String objectId) {
+    return storageStrategy.getAllForObject(objectType, objectId);
+  }
+
+  /**
+   * Wrapper method for {@link StorageStrategy#getChangesSince(Instant)}.
+   */
+  public List<ChangeVector> getChangesSince(Instant timestamp) {
+    return storageStrategy.getChangesSince(timestamp);
+  }
+
+  /**
+   * Wrapper method for {@link StorageStrategy#getChangesOfTypeSince(Instant, String)}.
+   */
+  public List<ChangeVector> getChangesOfTypeSince(Instant timestamp, String objectType) {
+    return storageStrategy.getChangesOfTypeSince(timestamp, objectType);
   }
 }

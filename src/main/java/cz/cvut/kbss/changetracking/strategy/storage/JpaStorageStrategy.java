@@ -8,7 +8,6 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.Predicate;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 public class JpaStorageStrategy implements StorageStrategy {
@@ -27,7 +26,7 @@ public class JpaStorageStrategy implements StorageStrategy {
   }
 
   @Override
-  public Collection<ChangeVector> getAllForObject(String objectType, String objectId) {
+  public List<ChangeVector> getAllForObject(String objectType, String objectId) {
     var cb = em.getCriteriaBuilder();
     var cq = cb.createQuery(ChangeVector.class);
     var root = cq.from(ChangeVector.class);
@@ -44,12 +43,12 @@ public class JpaStorageStrategy implements StorageStrategy {
   }
 
   @Override
-  public Collection<ChangeVector> getChangesSince(Instant timestamp) {
+  public List<ChangeVector> getChangesSince(Instant timestamp) {
     return getChangesOfTypeSince(timestamp, null);
   }
 
   @Override
-  public Collection<ChangeVector> getChangesOfTypeSince(Instant timestamp, @Nullable String objectType) {
+  public List<ChangeVector> getChangesOfTypeSince(Instant timestamp, @Nullable String objectType) {
     var cb = em.getCriteriaBuilder();
     var cq = cb.createQuery(ChangeVector.class);
     var root = cq.from(ChangeVector.class);
