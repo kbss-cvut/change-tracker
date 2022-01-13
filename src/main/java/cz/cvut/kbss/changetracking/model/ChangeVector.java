@@ -1,15 +1,18 @@
 package cz.cvut.kbss.changetracking.model;
 
+import org.jetbrains.annotations.NotNull;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import java.io.Serializable;
 import java.time.Instant;
 
 /**
  * Change vector entity class, representing a single change to an audited object at a given timestamp.
  */
 @Entity
-public class ChangeVector {
+public class ChangeVector implements Serializable {
   @Id
   @GeneratedValue
   private Long id;
@@ -18,13 +21,21 @@ public class ChangeVector {
 
   private Object previousValue;
 
+  private String attributeType;
+
   private String attributeName;
 
   private String objectType;
 
   private String objectId;
 
-  public ChangeVector(String objectType, String objectId, String attributeName, Object previousValue) {
+  public ChangeVector(
+    @NotNull String objectType,
+    @NotNull String objectId,
+    @NotNull String attributeName,
+    @NotNull Object previousValue
+  ) {
+    this.attributeType = previousValue.getClass().getCanonicalName();
     this.objectType = objectType;
     this.previousValue = previousValue;
     this.attributeName = attributeName;
@@ -45,6 +56,10 @@ public class ChangeVector {
 
   public Object getPreviousValue() {
     return previousValue;
+  }
+
+  public String getAttributeType() {
+    return attributeType;
   }
 
   public String getAttributeName() {

@@ -74,6 +74,7 @@ public class JopaEntityStrategyTest {
     assertEquals(studentInstanceIri, vector.getObjectId());
     assertEquals("http://uob.iodt.ibm.com/univ-bench-dl.owl#firstName", vector.getAttributeName());
     assertEquals(student1.firstName, vector.getPreviousValue());
+    assertEquals("java.lang.String", vector.getAttributeType());
     //assertNotNull(vector.getId());
     assertTrue(Instant.now().compareTo(vector.getTimestamp()) > 0);
   }
