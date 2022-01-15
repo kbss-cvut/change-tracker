@@ -50,6 +50,12 @@
             <version>3.7.7</version>
             <scope>test</scope>
         </dependency>
-    </dependencies>
+				<dependency>
+					<groupId>cz.cvut.kbss.jopa</groupId>
+					<artifactId>jopa-impl</artifactId>
+					<version>0.17.2</version>
+					<scope>test</scope>
+				</dependency>
+		</dependencies>
 
 </project>

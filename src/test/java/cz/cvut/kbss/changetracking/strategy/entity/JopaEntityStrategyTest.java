@@ -5,65 +5,39 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.cvut.kbss.changetracking.annotation.Audited;
 import cz.cvut.kbss.changetracking.exception.ClassNotAuditedException;
 import cz.cvut.kbss.changetracking.model.JsonChangeVector;
+import cz.cvut.kbss.jopa.loaders.PersistenceUnitClassFinder;
 import cz.cvut.kbss.jopa.model.IRI;
+import cz.cvut.kbss.jopa.model.JOPAPersistenceProperties;
+import cz.cvut.kbss.jopa.model.MetamodelImpl;
 import cz.cvut.kbss.jopa.model.annotations.Id;
 import cz.cvut.kbss.jopa.model.annotations.OWLClass;
 import cz.cvut.kbss.jopa.model.annotations.OWLDataProperty;
 import cz.cvut.kbss.jopa.model.metamodel.Attribute;
-import cz.cvut.kbss.jopa.model.metamodel.EntityType;
-import cz.cvut.kbss.jopa.model.metamodel.Identifier;
-import cz.cvut.kbss.jopa.model.metamodel.Metamodel;
+import cz.cvut.kbss.jopa.utils.Configuration;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Field;
 import java.net.URI;
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class JopaEntityStrategyTest {
 	static final String studentClassIri = "http://uob.iodt.ibm.com/univ-bench-dl.owl#UndergraduateStudent";
 	static final String studentInstanceIri = "http://www.oni.unsc.org/spartanII/John117";
-	static Metamodel mmMock;
 	static EntityStrategy<Object> strategy;
 
 	final ObjectMapper mapper = new ObjectMapper();
 
-	static Attribute<?, ?> getAttribute(String name) throws NoSuchFieldException {
-		var field = UndergraduateStudent.class.getDeclaredField(name);
-		var attr = mock(Attribute.class);
-		when(attr.getJavaField()).thenReturn(field);
-		when(attr.getName()).thenReturn(name);
-		when(attr.getIRI()).thenReturn(IRI.create(field.getAnnotation(OWLDataProperty.class).iri()));
-		return attr;
-	}
-
 	@BeforeAll
-	static void prepareEMMock() throws IllegalAccessException, NoSuchFieldException {
-		var jFieldId = mock(Field.class);
-		when(jFieldId.get(any())).thenReturn(studentInstanceIri);
-		when(jFieldId.canAccess(any())).thenReturn(true);
-
-		var idSpec = mock(Identifier.class);
-		when(idSpec.getJavaField()).thenReturn(jFieldId);
-
-		var attributeSet = new HashSet<>(List.of(getAttribute("firstName"), getAttribute("lastName")));
-
-		var studentEntityType = mock(EntityType.class);
-		when(studentEntityType.getIRI()).thenReturn(IRI.create(studentClassIri));
-		when(studentEntityType.getIdentifier()).thenReturn(idSpec);
-		when(studentEntityType.getAttributes()).thenReturn(attributeSet);
-
-		mmMock = mock(Metamodel.class);
-		when(mmMock.entity(UndergraduateStudent.class)).thenReturn(studentEntityType);
-
-		strategy = new JopaEntityStrategy(mmMock);
+	static void prepareStrategy() {
+		final var config = new Configuration();
+		config.set(JOPAPersistenceProperties.SCAN_PACKAGE, "cz.cvut.kbss.changetracking.strategy.entity");
+		var metamodel = new MetamodelImpl(config);
+		metamodel.build(new PersistenceUnitClassFinder());
+		strategy = new JopaEntityStrategy(metamodel);
 	}
 
 	@Test
@@ -86,9 +60,8 @@ public class JopaEntityStrategyTest {
 
 	@Test
 	void getChangeVectors_unchangedStudent_returnsEmptyVectorCollection() {
-		var strat = new JopaEntityStrategy(mmMock);
 		var student = new UndergraduateStudent(studentInstanceIri, "John", "Spartan");
-		var vectors = strat.getChangeVectors(student, student);
+		var vectors = strategy.getChangeVectors(student, student);
 		assertEquals(0, vectors.size());
 	}
 
@@ -105,25 +78,6 @@ public class JopaEntityStrategyTest {
 		OwlCourse course = new OwlCourse();
 
 		assertThrows(ClassNotAuditedException.class, () -> strategy.checkClassSupported(course.getClass()));
-	}
-
-	@OWLClass(iri = studentClassIri)
-	public static class UndergraduateStudent {
-
-		@Id
-		private final URI uri;
-
-		@OWLDataProperty(iri = "http://uob.iodt.ibm.com/univ-bench-dl.owl#firstName")
-		private final String firstName;
-
-		@OWLDataProperty(iri = "http://uob.iodt.ibm.com/univ-bench-dl.owl#lastName")
-		private final String lastName;
-
-		public UndergraduateStudent(String uri, String firstName, String lastName) {
-			this.uri = URI.create(uri);
-			this.firstName = firstName;
-			this.lastName = lastName;
-		}
 	}
 
 	@Audited
