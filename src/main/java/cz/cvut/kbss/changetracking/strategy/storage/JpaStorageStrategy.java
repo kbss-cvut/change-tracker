@@ -1,6 +1,6 @@
 package cz.cvut.kbss.changetracking.strategy.storage;
 
-import cz.cvut.kbss.changetracking.model.ChangeVector;
+import cz.cvut.kbss.changetracking.model.JsonChangeVector;
 import org.jetbrains.annotations.Nullable;
 
 import javax.persistence.EntityManager;
@@ -19,17 +19,17 @@ public class JpaStorageStrategy implements StorageStrategy {
 	}
 
 	@Override
-	public void save(ChangeVector... vectors) {
+	public void save(JsonChangeVector... vectors) {
 		for (var vec : vectors) {
 			em.persist(vec);
 		}
 	}
 
 	@Override
-	public List<ChangeVector> getAllForObject(String objectType, String objectId) {
+	public List<JsonChangeVector> getAllForObject(String objectType, String objectId) {
 		var cb = em.getCriteriaBuilder();
-		var cq = cb.createQuery(ChangeVector.class);
-		var root = cq.from(ChangeVector.class);
+		var cq = cb.createQuery(JsonChangeVector.class);
+		var root = cq.from(JsonChangeVector.class);
 		var predicates = List.of(
 			cb.equal(root.get("objectType"), objectType),
 			cb.equal(root.get("objectId"), objectId)
@@ -43,15 +43,15 @@ public class JpaStorageStrategy implements StorageStrategy {
 	}
 
 	@Override
-	public List<ChangeVector> getChangesSince(Instant timestamp) {
+	public List<JsonChangeVector> getChangesSince(Instant timestamp) {
 		return getChangesOfTypeSince(timestamp, null);
 	}
 
 	@Override
-	public List<ChangeVector> getChangesOfTypeSince(Instant timestamp, @Nullable String objectType) {
+	public List<JsonChangeVector> getChangesOfTypeSince(Instant timestamp, @Nullable String objectType) {
 		var cb = em.getCriteriaBuilder();
-		var cq = cb.createQuery(ChangeVector.class);
-		var root = cq.from(ChangeVector.class);
+		var cq = cb.createQuery(JsonChangeVector.class);
+		var root = cq.from(JsonChangeVector.class);
 		var predicates = new ArrayList<>(List.of(cb.greaterThanOrEqualTo(root.get("timestamp"), timestamp)));
 		if (objectType != null) {
 			predicates.add(cb.equal(root.get("objectType"), objectType));

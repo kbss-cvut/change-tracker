@@ -1,8 +1,10 @@
 package cz.cvut.kbss.changetracking.strategy.entity;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.cvut.kbss.changetracking.annotation.Audited;
 import cz.cvut.kbss.changetracking.exception.ClassNotAuditedException;
-import cz.cvut.kbss.changetracking.model.ChangeVector;
+import cz.cvut.kbss.changetracking.model.JsonChangeVector;
 import cz.cvut.kbss.jopa.model.IRI;
 import cz.cvut.kbss.jopa.model.annotations.Id;
 import cz.cvut.kbss.jopa.model.annotations.OWLClass;
@@ -30,6 +32,8 @@ public class JopaEntityStrategyTest {
 	static final String studentInstanceIri = "http://www.oni.unsc.org/spartanII/John117";
 	static Metamodel mmMock;
 	static EntityStrategy<Object> strategy;
+
+	final ObjectMapper mapper = new ObjectMapper();
 
 	static Attribute<?, ?> getAttribute(String name) throws NoSuchFieldException {
 		var field = UndergraduateStudent.class.getDeclaredField(name);
@@ -63,17 +67,18 @@ public class JopaEntityStrategyTest {
 	}
 
 	@Test
-	void getChangeVectors_studentsDifferingInFirstName_returnsOneVectorWithChangedName() {
+	void getChangeVectors_studentsDifferingInFirstName_returnsOneVectorWithChangedName() throws JsonProcessingException {
 		var student1 = new UndergraduateStudent(studentInstanceIri, "John", "Spartan");
 		var student2 = new UndergraduateStudent(studentInstanceIri, "Dave", "Spartan");
 
 		var vectors = strategy.getChangeVectors(student1, student2);
 		assertEquals(1, vectors.size());
-		var vector = vectors.toArray(ChangeVector[]::new)[0];
+		var vector = vectors.toArray(JsonChangeVector[]::new)[0];
 		assertEquals(studentClassIri, vector.getObjectType());
 		assertEquals(studentInstanceIri, vector.getObjectId());
 		assertEquals("http://uob.iodt.ibm.com/univ-bench-dl.owl#firstName", vector.getAttributeName());
-		assertEquals(student1.firstName, vector.getPreviousValue());
+		// note that we are working with a JsonChangeVector, not a ChangeVector here!
+		assertEquals(mapper.writeValueAsString(student1.firstName), vector.getPreviousValue());
 		assertEquals("java.lang.String", vector.getAttributeType());
 		//assertNotNull(vector.getId());
 		assertTrue(Instant.now().compareTo(vector.getTimestamp()) > 0);

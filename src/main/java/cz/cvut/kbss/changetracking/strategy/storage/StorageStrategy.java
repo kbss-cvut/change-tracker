@@ -1,6 +1,6 @@
 package cz.cvut.kbss.changetracking.strategy.storage;
 
-import cz.cvut.kbss.changetracking.model.ChangeVector;
+import cz.cvut.kbss.changetracking.model.JsonChangeVector;
 
 import java.time.Instant;
 import java.util.List;
@@ -13,8 +13,9 @@ public interface StorageStrategy {
 	 * Persist the provided change vectors to the underlying store.
 	 *
 	 * @param vectors The change vectors to be persisted.
+	 * @apiNote The vectors are already expected to contain JSON-encoded attribute values.
 	 */
-	void save(ChangeVector... vectors);
+	void save(JsonChangeVector... vectors);
 
 	/**
 	 * Get all change vectors for an object identified by its type and ID.
@@ -22,16 +23,20 @@ public interface StorageStrategy {
 	 * @param objectType String representation of the object's type.
 	 * @param objectId   String representation of the object's identifier.
 	 * @return A list of change vectors for the given object, possibly empty, sorted descending by timestamp.
+	 * @apiNote Beware that the change vectors' attribute values are JSON-encoded in the {@link JsonChangeVector}s
+	 * returned.
 	 */
-	List<ChangeVector> getAllForObject(String objectType, String objectId);
+	List<JsonChangeVector> getAllForObject(String objectType, String objectId);
 
 	/**
 	 * Get all change vectors since a timestamp (inclusive).
 	 *
 	 * @param timestamp Inclusive lower boundary of change vectors returned.
 	 * @return A list of change vectors since the timestamp, possibly empty, sorted descending by timestamp.
+	 * @apiNote Beware that the change vectors' attribute values are JSON-encoded in the {@link JsonChangeVector}s
+	 * returned.
 	 */
-	List<ChangeVector> getChangesSince(Instant timestamp);
+	List<JsonChangeVector> getChangesSince(Instant timestamp);
 
 	/**
 	 * Get all changed objects of a given type since a timestamp (inclusive).
@@ -39,6 +44,8 @@ public interface StorageStrategy {
 	 * @param timestamp  Inclusive lower boundary of change vectors returned.
 	 * @param objectType String representation of the objects' type.
 	 * @return A list of change vectors, possibly empty, sorted descending by timestamp.
+	 * @apiNote Beware that the change vectors' attribute values are JSON-encoded in the {@link JsonChangeVector}s
+	 * returned.
 	 */
-	List<ChangeVector> getChangesOfTypeSince(Instant timestamp, String objectType);
+	List<JsonChangeVector> getChangesOfTypeSince(Instant timestamp, String objectType);
 }
