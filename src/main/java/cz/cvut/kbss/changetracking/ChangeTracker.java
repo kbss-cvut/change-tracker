@@ -13,17 +13,19 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-// TODO: deal with EntityStrategy generics
 public class ChangeTracker {
 
+	@SuppressWarnings("rawtypes")
 	private EntityStrategy entityStrategy;
 	private StorageStrategy storageStrategy;
 
+	@SuppressWarnings("rawtypes")
 	public ChangeTracker(EntityStrategy entityStrategy, StorageStrategy storageStrategy) {
 		this.entityStrategy = entityStrategy;
 		this.storageStrategy = storageStrategy;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public void setClassStrategy(EntityStrategy entityStrategy) {
 		this.entityStrategy = entityStrategy;
 	}
@@ -43,6 +45,7 @@ public class ChangeTracker {
 	 *                                                                        supported by the current {@link
 	 *                                                                        EntityStrategy}.
 	 */
+	@SuppressWarnings("unchecked")
 	public Collection<JsonChangeVector> compare(Object older, Object newer) {
 		Objects.requireNonNull(older);
 		Objects.requireNonNull(newer);

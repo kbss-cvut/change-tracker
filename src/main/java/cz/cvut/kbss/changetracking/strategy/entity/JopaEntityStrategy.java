@@ -23,11 +23,8 @@ public class JopaEntityStrategy extends AbstractEntityStrategy<Object, Attribute
 			throw new ClassNotAuditedException(clazz);
 	}
 
-	// FIXME: java: incompatible types: java.util.Set<cz.cvut.kbss.jopa.model.metamodel.Attribute<? super
-	//  capture#1 of ? extends java.lang.Object,?>> cannot be converted to java.util.Set<cz.cvut.kbss.jopa.model
-	//  .metamodel.Attribute<?,?>>
-	//  (prevented by casting for now but may indicate a deeper-seated generics issue)
 	@Override
+	@SuppressWarnings("unchecked")
 	protected Collection<Attribute<?, ?>> getAttributes(Object entity) {
 		return (Collection<Attribute<?, ?>>) metamodel.entity(entity.getClass()).getAttributes();
 	}
