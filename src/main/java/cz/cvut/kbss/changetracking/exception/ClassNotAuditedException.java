@@ -7,7 +7,7 @@ package cz.cvut.kbss.changetracking.exception;
  * cz.cvut.kbss.changetracking.annotation.Audited} annotation).
  */
 public class ClassNotAuditedException extends ChangeTrackingException {
-  public ClassNotAuditedException(Class<?> clazz) {
-    super("Object class doesn't support auditing: " + clazz.getCanonicalName());
-  }
+	public ClassNotAuditedException(Class<?> clazz) {
+		super("Object class doesn't support auditing: " + clazz.getCanonicalName());
+	}
 }

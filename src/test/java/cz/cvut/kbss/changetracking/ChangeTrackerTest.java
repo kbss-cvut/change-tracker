@@ -14,34 +14,34 @@ import java.net.URI;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ChangeTrackerTest {
-  ChangeTracker changeTracker = new ChangeTracker(new JopaEntityStrategy(null), new JpaStorageStrategy(null));
+	ChangeTracker changeTracker = new ChangeTracker(new JopaEntityStrategy(null), new JpaStorageStrategy(null));
 
 
-  @Test
-  void compare_twoDifferentClasses_throwsObjectsNotCompatibleException() {
-    OwlAuditedCourse course = new OwlAuditedCourse();
-    OwlAuditedPaper paper = new OwlAuditedPaper();
+	@Test
+	void compare_twoDifferentClasses_throwsObjectsNotCompatibleException() {
+		OwlAuditedCourse course = new OwlAuditedCourse();
+		OwlAuditedPaper paper = new OwlAuditedPaper();
 
-    assertThrows(ObjectsNotCompatibleException.class, () -> changeTracker.compare(course, paper));
-  }
+		assertThrows(ObjectsNotCompatibleException.class, () -> changeTracker.compare(course, paper));
+	}
 
-  @OWLClass(iri = "http://uob.iodt.ibm.com/univ-bench-dl.owl#Course")
-  @Audited
-  static class OwlAuditedCourse {
-    @Id
-    private URI uri;
+	@OWLClass(iri = "http://uob.iodt.ibm.com/univ-bench-dl.owl#Course")
+	@Audited
+	static class OwlAuditedCourse {
+		@Id
+		private URI uri;
 
-    @OWLDataProperty(iri = "http://uob.iodt.ibm.com/univ-bench-dl.owl#name")
-    private String name;
-  }
+		@OWLDataProperty(iri = "http://uob.iodt.ibm.com/univ-bench-dl.owl#name")
+		private String name;
+	}
 
-  @OWLClass(iri = "http://uob.iodt.ibm.com/univ-bench-dl.owl#ConferencePaper")
-  @Audited
-  static class OwlAuditedPaper {
-    @Id
-    private URI uri;
+	@OWLClass(iri = "http://uob.iodt.ibm.com/univ-bench-dl.owl#ConferencePaper")
+	@Audited
+	static class OwlAuditedPaper {
+		@Id
+		private URI uri;
 
-    @OWLDataProperty(iri = "http://uob.iodt.ibm.com/univ-bench-dl.owl#name")
-    private String name;
-  }
+		@OWLDataProperty(iri = "http://uob.iodt.ibm.com/univ-bench-dl.owl#name")
+		private String name;
+	}
 }

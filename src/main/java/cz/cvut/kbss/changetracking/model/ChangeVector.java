@@ -13,64 +13,64 @@ import java.time.Instant;
  */
 @Entity
 public class ChangeVector implements Serializable {
-  @Id
-  @GeneratedValue
-  private Long id;
+	@Id
+	@GeneratedValue
+	private Long id;
 
-  private Instant timestamp;
+	private Instant timestamp;
 
-  private Object previousValue;
+	private Object previousValue;
 
-  private String attributeType;
+	private String attributeType;
 
-  private String attributeName;
+	private String attributeName;
 
-  private String objectType;
+	private String objectType;
 
-  private String objectId;
+	private String objectId;
 
-  public ChangeVector(
-    @NotNull String objectType,
-    @NotNull String objectId,
-    @NotNull String attributeName,
-    @NotNull Object previousValue
-  ) {
-    this.attributeType = previousValue.getClass().getCanonicalName();
-    this.objectType = objectType;
-    this.previousValue = previousValue;
-    this.attributeName = attributeName;
-    this.objectId = objectId;
-    this.timestamp = Instant.now();
-  }
+	public ChangeVector(
+		@NotNull String objectType,
+		@NotNull String objectId,
+		@NotNull String attributeName,
+		@NotNull Object previousValue
+	) {
+		this.attributeType = previousValue.getClass().getCanonicalName();
+		this.objectType = objectType;
+		this.previousValue = previousValue;
+		this.attributeName = attributeName;
+		this.objectId = objectId;
+		this.timestamp = Instant.now();
+	}
 
-  public ChangeVector() {
-  }
+	public ChangeVector() {
+	}
 
-  public Long getId() {
-    return id;
-  }
+	public Long getId() {
+		return id;
+	}
 
-  public Instant getTimestamp() {
-    return timestamp;
-  }
+	public Instant getTimestamp() {
+		return timestamp;
+	}
 
-  public Object getPreviousValue() {
-    return previousValue;
-  }
+	public Object getPreviousValue() {
+		return previousValue;
+	}
 
-  public String getAttributeType() {
-    return attributeType;
-  }
+	public String getAttributeType() {
+		return attributeType;
+	}
 
-  public String getAttributeName() {
-    return attributeName;
-  }
+	public String getAttributeName() {
+		return attributeName;
+	}
 
-  public String getObjectType() {
-    return objectType;
-  }
+	public String getObjectType() {
+		return objectType;
+	}
 
-  public String getObjectId() {
-    return objectId;
-  }
+	public String getObjectId() {
+		return objectId;
+	}
 }

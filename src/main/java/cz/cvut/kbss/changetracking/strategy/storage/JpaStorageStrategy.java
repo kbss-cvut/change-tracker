@@ -11,56 +11,56 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JpaStorageStrategy implements StorageStrategy {
-  @PersistenceContext
-  private final EntityManager em;
+	@PersistenceContext
+	private final EntityManager em;
 
-  public JpaStorageStrategy(EntityManager em) {
-    this.em = em;
-  }
+	public JpaStorageStrategy(EntityManager em) {
+		this.em = em;
+	}
 
-  @Override
-  public void save(ChangeVector... vectors) {
-    for (var vec : vectors) {
-      em.persist(vec);
-    }
-  }
+	@Override
+	public void save(ChangeVector... vectors) {
+		for (var vec : vectors) {
+			em.persist(vec);
+		}
+	}
 
-  @Override
-  public List<ChangeVector> getAllForObject(String objectType, String objectId) {
-    var cb = em.getCriteriaBuilder();
-    var cq = cb.createQuery(ChangeVector.class);
-    var root = cq.from(ChangeVector.class);
-    var predicates = List.of(
-      cb.equal(root.get("objectType"), objectType),
-      cb.equal(root.get("objectId"), objectId)
-    );
+	@Override
+	public List<ChangeVector> getAllForObject(String objectType, String objectId) {
+		var cb = em.getCriteriaBuilder();
+		var cq = cb.createQuery(ChangeVector.class);
+		var root = cq.from(ChangeVector.class);
+		var predicates = List.of(
+			cb.equal(root.get("objectType"), objectType),
+			cb.equal(root.get("objectId"), objectId)
+		);
 
-    cq
-      .select(root)
-      .where(cb.and(predicates.toArray(Predicate[]::new)))
-      .orderBy(cb.desc(root.get("timestamp")));
-    return em.createQuery(cq).getResultList();
-  }
+		cq
+			.select(root)
+			.where(cb.and(predicates.toArray(Predicate[]::new)))
+			.orderBy(cb.desc(root.get("timestamp")));
+		return em.createQuery(cq).getResultList();
+	}
 
-  @Override
-  public List<ChangeVector> getChangesSince(Instant timestamp) {
-    return getChangesOfTypeSince(timestamp, null);
-  }
+	@Override
+	public List<ChangeVector> getChangesSince(Instant timestamp) {
+		return getChangesOfTypeSince(timestamp, null);
+	}
 
-  @Override
-  public List<ChangeVector> getChangesOfTypeSince(Instant timestamp, @Nullable String objectType) {
-    var cb = em.getCriteriaBuilder();
-    var cq = cb.createQuery(ChangeVector.class);
-    var root = cq.from(ChangeVector.class);
-    var predicates = new ArrayList<>(List.of(cb.greaterThanOrEqualTo(root.get("timestamp"), timestamp)));
-    if (objectType != null) {
-      predicates.add(cb.equal(root.get("objectType"), objectType));
-    }
+	@Override
+	public List<ChangeVector> getChangesOfTypeSince(Instant timestamp, @Nullable String objectType) {
+		var cb = em.getCriteriaBuilder();
+		var cq = cb.createQuery(ChangeVector.class);
+		var root = cq.from(ChangeVector.class);
+		var predicates = new ArrayList<>(List.of(cb.greaterThanOrEqualTo(root.get("timestamp"), timestamp)));
+		if (objectType != null) {
+			predicates.add(cb.equal(root.get("objectType"), objectType));
+		}
 
-    cq
-      .select(root)
-      .where(cb.and(predicates.toArray(Predicate[]::new)))
-      .orderBy(cb.desc(root.get("timestamp")));
-    return em.createQuery(cq).getResultList();
-  }
+		cq
+			.select(root)
+			.where(cb.and(predicates.toArray(Predicate[]::new)))
+			.orderBy(cb.desc(root.get("timestamp")));
+		return em.createQuery(cq).getResultList();
+	}
 }

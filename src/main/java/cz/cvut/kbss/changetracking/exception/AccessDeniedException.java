@@ -5,11 +5,11 @@ package cz.cvut.kbss.changetracking.exception;
  * unable to access an object or one of its attributes/fields.
  */
 public class AccessDeniedException extends ChangeTrackingException {
-  public AccessDeniedException(Throwable cause) {
-    super("Failed to access object or field", cause);
-  }
+	public AccessDeniedException(Throwable cause) {
+		super("Failed to access object or field", cause);
+	}
 
-  public AccessDeniedException(Object o, String fieldName) {
-    super("Failed to access field " + fieldName + " on object: " + o.toString());
-  }
+	public AccessDeniedException(Object o, String fieldName) {
+		super("Failed to access field " + fieldName + " on object: " + o.toString());
+	}
 }
