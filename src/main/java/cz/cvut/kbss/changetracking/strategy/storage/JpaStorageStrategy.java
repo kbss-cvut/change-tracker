@@ -10,6 +10,10 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * {@link JpaStorageStrategy} is a {@link StorageStrategy} implementation that uses the Java Persistence API for storing
+ * change vectors in a single type with a catch-all column.
+ */
 public class JpaStorageStrategy implements StorageStrategy {
 	@PersistenceContext
 	private final EntityManager em;
