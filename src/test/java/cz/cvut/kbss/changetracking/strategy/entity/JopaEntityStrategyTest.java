@@ -15,9 +15,13 @@ import cz.cvut.kbss.jopa.model.metamodel.Attribute;
 import cz.cvut.kbss.jopa.utils.Configuration;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.net.URI;
 import java.time.Instant;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -35,6 +39,24 @@ public class JopaEntityStrategyTest {
 		var metamodel = new MetamodelImpl(config);
 		metamodel.build(new PersistenceUnitClassFinder());
 		strategy = new JopaEntityStrategy(metamodel);
+	}
+
+	@SuppressWarnings("cast")
+	static Stream<Arguments> provideArgumentsForJsonConversion() {
+		return Stream.of(
+			Arguments.of(String.class, "\"\"", (Object) ""),
+			Arguments.of(String.class, "\"hello\"", (Object) "hello"),
+			Arguments.of(Character.class, "\"c\"", (Object) 'c'),
+			Arguments.of(char.class, "\"x\"", (Object) 'x'),
+			Arguments.of(Double.class, "66.667", (Object) 66.667d),
+			Arguments.of(double.class, "10.03", (Object) 10.03d),
+			Arguments.of(Float.class, "9999999.0", (Object) 9999999f),
+			Arguments.of(float.class, "-13.9", (Object) (0 - 13.9f)),
+			Arguments.of(Integer.class, "100", (Object) 100),
+			Arguments.of(int.class, "10", (Object) 10),
+			Arguments.of(Boolean.class, "true", (Object) true),
+			Arguments.of(boolean.class, "false", (Object) false)
+		);
 	}
 
 	@Test
@@ -60,6 +82,20 @@ public class JopaEntityStrategyTest {
 		var student = new UndergraduateStudent(studentInstanceIri, "John", "Spartan");
 		var vectors = strategy.getChangeVectors(student, student);
 		assertEquals(0, vectors.size());
+	}
+
+	@ParameterizedTest
+	@MethodSource("provideArgumentsForJsonConversion")
+	void convertValueFromJson_allSupportedTypes_convertsProperly(Class<?> clazz, String json, Object expected) {
+		var converted = strategy.convertValueFromJson(clazz.getCanonicalName(), json);
+		assertEquals(expected, converted);
+		assertTrue(clazz.isPrimitive() || clazz.isInstance(converted));
+	}
+
+	@ParameterizedTest
+	@MethodSource("provideArgumentsForJsonConversion")
+	void convertValueToJson_allSupportedTypes_convertsProperly(Class<?> _clazz, String expectedJson, Object raw) {
+		assertEquals(expectedJson, strategy.convertValueToJson(raw));
 	}
 
 	// FIXME: this may be semantically wrong

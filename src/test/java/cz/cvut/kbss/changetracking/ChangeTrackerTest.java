@@ -2,19 +2,29 @@ package cz.cvut.kbss.changetracking;
 
 import cz.cvut.kbss.changetracking.annotation.Audited;
 import cz.cvut.kbss.changetracking.exception.ObjectsNotCompatibleException;
-import cz.cvut.kbss.changetracking.strategy.entity.JopaEntityStrategy;
+import cz.cvut.kbss.changetracking.model.JsonChangeVector;
+import cz.cvut.kbss.changetracking.strategy.entity.EntityStrategy;
 import cz.cvut.kbss.changetracking.strategy.storage.JpaStorageStrategy;
 import cz.cvut.kbss.jopa.model.annotations.Id;
 import cz.cvut.kbss.jopa.model.annotations.OWLClass;
 import cz.cvut.kbss.jopa.model.annotations.OWLDataProperty;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
+import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
 
 public class ChangeTrackerTest {
-	ChangeTracker changeTracker = new ChangeTracker(new JopaEntityStrategy(null), new JpaStorageStrategy(null));
+	static EntityStrategy<?> entityStrategy = mock(EntityStrategy.class);
+	static ChangeTracker changeTracker = new ChangeTracker(entityStrategy, mock(JpaStorageStrategy.class));
+
+	@BeforeAll
+	static void setup() {
+		when(entityStrategy.convertValueFromJson(any(), any())).thenReturn(null);
+	}
 
 
 	@Test
@@ -23,6 +33,21 @@ public class ChangeTrackerTest {
 		OwlAuditedPaper paper = new OwlAuditedPaper();
 
 		assertThrows(ObjectsNotCompatibleException.class, () -> changeTracker.compare(course, paper));
+	}
+
+	@Test
+	void convertVectorValuesFromJson_oneJsonVector_callsEntityStrategyConvertorMethod() {
+		var cls = String.class;
+		var nameJson = "\"Jan\"";
+		var jsonVector = new JsonChangeVector(
+			"java.lang.Object",
+			"0",
+			cls,
+			"name",
+			nameJson
+		);
+		changeTracker.convertVectorValuesFromJson(Collections.singletonList(jsonVector));
+		verify(entityStrategy, times(1)).convertValueFromJson(cls.getCanonicalName(), nameJson);
 	}
 
 	@OWLClass(iri = "http://uob.iodt.ibm.com/univ-bench-dl.owl#Course")
