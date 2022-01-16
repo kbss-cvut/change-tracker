@@ -6,7 +6,6 @@ import cz.cvut.kbss.changetracking.annotation.Audited;
 import cz.cvut.kbss.changetracking.exception.ClassNotAuditedException;
 import cz.cvut.kbss.changetracking.model.JsonChangeVector;
 import cz.cvut.kbss.jopa.loaders.PersistenceUnitClassFinder;
-import cz.cvut.kbss.jopa.model.IRI;
 import cz.cvut.kbss.jopa.model.JOPAPersistenceProperties;
 import cz.cvut.kbss.jopa.model.MetamodelImpl;
 import cz.cvut.kbss.jopa.model.annotations.Id;
@@ -21,13 +20,11 @@ import java.net.URI;
 import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class JopaEntityStrategyTest {
 	static final String studentClassIri = "http://uob.iodt.ibm.com/univ-bench-dl.owl#UndergraduateStudent";
 	static final String studentInstanceIri = "http://www.oni.unsc.org/spartanII/John117";
-	static EntityStrategy<Object> strategy;
+	static EntityStrategy<Attribute<?, ?>> strategy;
 
 	final ObjectMapper mapper = new ObjectMapper();
 

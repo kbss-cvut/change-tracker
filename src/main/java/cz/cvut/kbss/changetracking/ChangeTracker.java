@@ -2,8 +2,8 @@ package cz.cvut.kbss.changetracking;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import cz.cvut.kbss.changetracking.exception.ObjectsNotCompatibleException;
-import cz.cvut.kbss.changetracking.model.JsonChangeVector;
 import cz.cvut.kbss.changetracking.model.ChangeVector;
+import cz.cvut.kbss.changetracking.model.JsonChangeVector;
 import cz.cvut.kbss.changetracking.strategy.entity.EntityStrategy;
 import cz.cvut.kbss.changetracking.strategy.storage.StorageStrategy;
 
@@ -74,9 +74,8 @@ public class ChangeTracker {
 	}
 
 	/**
-	 * Convert vectors from {@link JsonChangeVector} to {@link ChangeVector}, i.e. convert their previousValues
-	 * from
-	 * JSON back to their original types.
+	 * Convert vectors from {@link JsonChangeVector} to {@link ChangeVector}, i.e. convert their previousValues from JSON
+	 * back to their original types.
 	 *
 	 * @param vectors The vectors to convert.
 	 * @return Vectors with proper values.
@@ -85,7 +84,10 @@ public class ChangeTracker {
 	protected List<ChangeVector> convertVectorValuesFromJson(List<JsonChangeVector> vectors) {
 		return vectors.stream().map(vector -> {
 			try {
-				return new ChangeVector(vector, entityStrategy);
+				return new ChangeVector(
+					vector,
+					entityStrategy.convertValueFromJson(vector.getAttributeType(), vector.getPreviousValue())
+				);
 			} catch (JsonProcessingException e) {
 				e.printStackTrace();
 				return null;

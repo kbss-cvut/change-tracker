@@ -34,7 +34,7 @@ public abstract class AbstractChangeVector<T> implements Serializable {
 		@NotNull String objectType,
 		@NotNull String objectId,
 		@NotNull String attributeName,
-		@NotNull T previousValue
+		T previousValue
 	) {
 		this.objectType = objectType;
 		this.objectId = objectId;

@@ -10,7 +10,7 @@ import cz.cvut.kbss.jopa.model.metamodel.Metamodel;
 import java.util.Collection;
 import java.util.Objects;
 
-public class JopaEntityStrategy extends AbstractEntityStrategy<Object, Attribute<?, ?>> {
+public class JopaEntityStrategy extends AbstractEntityStrategy<Attribute<?, ?>> {
 	private final Metamodel metamodel;
 
 	public JopaEntityStrategy(Metamodel metamodel) {
@@ -25,17 +25,17 @@ public class JopaEntityStrategy extends AbstractEntityStrategy<Object, Attribute
 
 	@Override
 	@SuppressWarnings("unchecked")
-	protected Collection<Attribute<?, ?>> getAttributes(Object entity) {
+	public Collection<Attribute<?, ?>> getAttributes(Object entity) {
 		return (Collection<Attribute<?, ?>>) metamodel.entity(entity.getClass()).getAttributes();
 	}
 
 	@Override
-	protected String getAttributeName(Attribute<?, ?> field) {
+	public String getAttributeName(Attribute<?, ?> field) {
 		return field.getIRI().toString();
 	}
 
 	@Override
-	protected Object getAttributeValue(Attribute<?, ?> field, Object instance) {
+	public Object getAttributeValue(Attribute<?, ?> field, Object instance) {
 		Objects.requireNonNull(field);
 		Objects.requireNonNull(instance);
 		var jField = field.getJavaField();

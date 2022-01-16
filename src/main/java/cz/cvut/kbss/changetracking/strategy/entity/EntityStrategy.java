@@ -9,10 +9,10 @@ import java.util.Collection;
  * <p>
  * TODO: rename (EntityComparisonStrategy?)
  *
- * @param <TEntity> Type of all entities supported by the strategy. If the entity classes do not share a common
- *                  superclass, {@link Object} can be used.
+ * @param <TField> Generic high-level type of attributes/fields used in the entity. If an implementation of this
+ *                strategy is not to use a metamodel, {@link java.lang.reflect.Field} should be used.
  */
-public interface EntityStrategy<TEntity> {
+public interface EntityStrategy<TField> {
   /**
    * Check if a class is supported for auditing and if not, throw
    * {@link cz.cvut.kbss.changetracking.exception.ClassNotAuditedException}.
@@ -29,7 +29,7 @@ public interface EntityStrategy<TEntity> {
    * @return A collection of change vectors, representing the changes between the revisions.
    * @throws cz.cvut.kbss.changetracking.exception.ChangeTrackingException When vectors are not successfully created.
    */
-  Collection<JsonChangeVector> getChangeVectors(TEntity older, TEntity newer);
+  <T> Collection<JsonChangeVector> getChangeVectors(T older, T newer);
 
   /**
    * Get an application-unique string representation of the object's type. This MAY be the name of the object's class.
@@ -67,4 +67,26 @@ public interface EntityStrategy<TEntity> {
    *                                                             class is not supported.
    */
   Object convertValueFromJson(String type, String json);
+
+  /**
+   * Get the attributes/fields of the supplied entity's type.
+   * @param object The entity whose attributes to get.
+   * @return An iterable collection of the attributes.
+   */
+  Collection<TField> getAttributes(Object object);
+
+  /**
+   * Get the name of an attribute/field.
+   * @param field The attribute/field to get the name of.
+   * @return The name of the attribute/field.
+   */
+  String getAttributeName(TField field);
+
+  /**
+   * Get the value of an attribute on an entity instance.
+   * @param field The attribute.
+   * @param instance The entity.
+   * @return The value of the attribute on the instance.
+   */
+  Object getAttributeValue(TField field, Object instance);
 }

@@ -9,7 +9,7 @@ import cz.cvut.kbss.changetracking.model.JsonChangeVector;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public abstract class AbstractEntityStrategy<TEntity, TField> implements EntityStrategy<TEntity> {
+public abstract class AbstractEntityStrategy<TField> implements EntityStrategy<TField> {
 	/**
 	 * Set of classes natively supported by Jackson's {@link ObjectMapper}.
 	 */
@@ -28,14 +28,8 @@ public abstract class AbstractEntityStrategy<TEntity, TField> implements EntityS
 	));
 	protected final ObjectMapper objectMapper = new ObjectMapper();
 
-	protected abstract Collection<TField> getAttributes(TEntity entity);
-
-	protected abstract String getAttributeName(TField field);
-
-	protected abstract Object getAttributeValue(TField field, TEntity instance);
-
 	@Override
-	public final Collection<JsonChangeVector> getChangeVectors(TEntity older, TEntity newer) {
+	public final <TEntity> Collection<JsonChangeVector> getChangeVectors(TEntity older, TEntity newer) {
 		var type = getObjectType(older);
 		var id1 = getObjectId(older);
 		// TODO: id2?
