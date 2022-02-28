@@ -46,7 +46,7 @@ public class ExampleRunner implements CommandLineRunner {
 
 		var vector = changeTracker.getChangesSince(Instant.EPOCH).get(0);
 
-		System.out.println(vector.getPreviousValue());
+		System.out.println(vector);
 	}
 
 	@PreDestroy

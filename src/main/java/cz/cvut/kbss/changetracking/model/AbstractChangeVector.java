@@ -70,5 +70,17 @@ public abstract class AbstractChangeVector<T> implements Serializable {
 		return objectId;
 	}
 
+	@Override
+	public String toString() {
+		return "AbstractChangeVector{" +
+			"id=" + id +
+			", timestamp=" + timestamp +
+			", previousValue=" + previousValue +
+			", attributeName='" + attributeName + '\'' +
+			", objectType='" + objectType + '\'' +
+			", objectId='" + objectId + '\'' +
+			'}';
+	}
+
 	// TODO: hashCode, equals
 }
