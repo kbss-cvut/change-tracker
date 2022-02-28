@@ -9,13 +9,14 @@ import cz.cvut.kbss.changetracking.exception.ClassNotAuditedException;
 import cz.cvut.kbss.changetracking.exception.JsonException;
 import cz.cvut.kbss.changetracking.model.JsonChangeVector;
 import cz.cvut.kbss.jopa.model.annotations.OWLClass;
-import cz.cvut.kbss.jopa.model.metamodel.Attribute;
+import cz.cvut.kbss.jopa.model.annotations.OWLDataProperty;
+import cz.cvut.kbss.jopa.model.metamodel.FieldSpecification;
 import cz.cvut.kbss.jopa.model.metamodel.Metamodel;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class JopaEntityStrategy implements EntityStrategy<Attribute<?, ?>> {
+public class JopaEntityStrategy implements EntityStrategy<FieldSpecification<?, ?>> {
 	/**
 	 * Set of classes natively supported by Jackson's {@link ObjectMapper}.
 	 */
@@ -99,17 +100,23 @@ public class JopaEntityStrategy implements EntityStrategy<Attribute<?, ?>> {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public Collection<Attribute<?, ?>> getAttributes(Object entity) {
-		return (Collection<Attribute<?, ?>>) metamodel.entity(entity.getClass()).getAttributes();
+	public Collection<FieldSpecification<?, ?>> getAttributes(Object entity) {
+		return (Collection<FieldSpecification<?, ?>>) metamodel.entity(entity.getClass()).getFieldSpecifications();
 	}
 
 	@Override
-	public String getAttributeName(Attribute<?, ?> field) {
-		return field.getIRI().toString();
+	public String getAttributeName(FieldSpecification<?, ?> field) {
+		var jField = field.getJavaField();
+		if (jField.isAnnotationPresent(OWLDataProperty.class)) {
+			return jField.getAnnotation(OWLDataProperty.class).iri();
+		} else {
+			// TODO: at least log
+			return jField.getName();
+		}
 	}
 
 	@Override
-	public Object getAttributeValue(Attribute<?, ?> field, Object instance) {
+	public Object getAttributeValue(FieldSpecification<?, ?> field, Object instance) {
 		Objects.requireNonNull(field);
 		Objects.requireNonNull(instance);
 		var jField = field.getJavaField();

@@ -11,7 +11,7 @@ import cz.cvut.kbss.jopa.model.MetamodelImpl;
 import cz.cvut.kbss.jopa.model.annotations.Id;
 import cz.cvut.kbss.jopa.model.annotations.OWLClass;
 import cz.cvut.kbss.jopa.model.annotations.OWLDataProperty;
-import cz.cvut.kbss.jopa.model.metamodel.Attribute;
+import cz.cvut.kbss.jopa.model.metamodel.FieldSpecification;
 import cz.cvut.kbss.jopa.utils.Configuration;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class JopaEntityStrategyTest {
 	static final String studentClassIri = "http://uob.iodt.ibm.com/univ-bench-dl.owl#UndergraduateStudent";
 	static final String studentInstanceIri = "http://www.oni.unsc.org/spartanII/John117";
-	static EntityStrategy<Attribute<?, ?>> strategy;
+	static EntityStrategy<FieldSpecification<?, ?>> strategy;
 
 	final ObjectMapper mapper = new ObjectMapper();
 
