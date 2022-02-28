@@ -1,5 +1,6 @@
 package cz.cvut.kbss.changetracking.strategy.storage;
 
+import cz.cvut.kbss.changetracking.model.ChangeVector;
 import cz.cvut.kbss.changetracking.model.JsonChangeVector;
 import org.jetbrains.annotations.Nullable;
 
@@ -8,13 +9,15 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.Predicate;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * {@link JpaStorageStrategy} is a {@link StorageStrategy} implementation that uses the Java Persistence API for storing
  * change vectors in a single type with a catch-all column.
  */
-public class JpaStorageStrategy implements StorageStrategy {
+public class JpaStorageStrategy extends JsonBasedStorageStrategy {
+
 	@PersistenceContext
 	private final EntityManager em;
 
@@ -23,14 +26,19 @@ public class JpaStorageStrategy implements StorageStrategy {
 	}
 
 	@Override
-	public void save(JsonChangeVector... vectors) {
-		for (var vec : vectors) {
-			em.persist(vec);
-		}
+	public void save(ChangeVector... rawVectors) {
+		Arrays
+			.stream(rawVectors)
+			.map(vector -> new JsonChangeVector(
+				vector,
+				vector.getPreviousValue().getClass(),
+				convertValueToJson(vector.getPreviousValue())
+			))
+			.forEach(em::persist);
 	}
 
 	@Override
-	public List<JsonChangeVector> getAllForObject(String objectType, String objectId) {
+	public List<ChangeVector> getAllForObject(String objectType, String objectId) {
 		var cb = em.getCriteriaBuilder();
 		var cq = cb.createQuery(JsonChangeVector.class);
 		var root = cq.from(JsonChangeVector.class);
@@ -43,16 +51,16 @@ public class JpaStorageStrategy implements StorageStrategy {
 			.select(root)
 			.where(cb.and(predicates.toArray(Predicate[]::new)))
 			.orderBy(cb.desc(root.get("timestamp")));
-		return em.createQuery(cq).getResultList();
+		return convertVectorsFromJson(em.createQuery(cq).getResultList());
 	}
 
 	@Override
-	public List<JsonChangeVector> getChangesSince(Instant timestamp) {
+	public List<ChangeVector> getChangesSince(Instant timestamp) {
 		return getChangesOfTypeSince(timestamp, null);
 	}
 
 	@Override
-	public List<JsonChangeVector> getChangesOfTypeSince(Instant timestamp, @Nullable String objectType) {
+	public List<ChangeVector> getChangesOfTypeSince(Instant timestamp, @Nullable String objectType) {
 		var cb = em.getCriteriaBuilder();
 		var cq = cb.createQuery(JsonChangeVector.class);
 		var root = cq.from(JsonChangeVector.class);
@@ -65,6 +73,6 @@ public class JpaStorageStrategy implements StorageStrategy {
 			.select(root)
 			.where(cb.and(predicates.toArray(Predicate[]::new)))
 			.orderBy(cb.desc(root.get("timestamp")));
-		return em.createQuery(cq).getResultList();
+		return convertVectorsFromJson(em.createQuery(cq).getResultList());
 	}
 }

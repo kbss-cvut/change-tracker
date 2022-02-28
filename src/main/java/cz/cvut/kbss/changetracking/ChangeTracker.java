@@ -1,9 +1,7 @@
 package cz.cvut.kbss.changetracking;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import cz.cvut.kbss.changetracking.exception.ObjectsNotCompatibleException;
 import cz.cvut.kbss.changetracking.model.ChangeVector;
-import cz.cvut.kbss.changetracking.model.JsonChangeVector;
 import cz.cvut.kbss.changetracking.strategy.entity.EntityStrategy;
 import cz.cvut.kbss.changetracking.strategy.storage.StorageStrategy;
 
@@ -11,7 +9,6 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class ChangeTracker {
 
@@ -46,7 +43,7 @@ public class ChangeTracker {
 	 *                                                                        EntityStrategy}.
 	 */
 	@SuppressWarnings("unchecked")
-	public Collection<JsonChangeVector> compare(Object older, Object newer) {
+	public Collection<ChangeVector> compare(Object older, Object newer) {
 		Objects.requireNonNull(older);
 		Objects.requireNonNull(newer);
 
@@ -70,53 +67,25 @@ public class ChangeTracker {
 	 */
 	public <T> void compareAndSave(T older, T newer) {
 		var vectors = compare(older, newer);
-		storageStrategy.save(vectors.toArray(JsonChangeVector[]::new));
-	}
-
-	/**
-	 * Convert vectors from {@link JsonChangeVector} to {@link ChangeVector}, i.e. convert their previousValues from JSON
-	 * back to their original types.
-	 *
-	 * @param vectors The vectors to convert.
-	 * @return Vectors with proper values.
-	 * @throws cz.cvut.kbss.changetracking.exception.JsonException Based on {@link EntityStrategy#convertValueFromJson}.
-	 */
-	protected List<ChangeVector> convertVectorValuesFromJson(List<JsonChangeVector> vectors) {
-		return vectors.stream().map(vector -> {
-			try {
-				return new ChangeVector(
-					vector,
-					entityStrategy.convertValueFromJson(vector.getAttributeType(), vector.getPreviousValue())
-				);
-			} catch (JsonProcessingException e) {
-				e.printStackTrace();
-				return null;
-			}
-		}).collect(Collectors.toList());
+		storageStrategy.save(vectors.toArray(ChangeVector[]::new));
 	}
 
 	/**
 	 * Get all change vectors for an object.
 	 * <p>
-	 * This method calls {@link StorageStrategy#getAllForObject(String, String)} and then converts the attributes' values
-	 * from JSON to the original types.
-	 *
-	 * @throws cz.cvut.kbss.changetracking.exception.JsonException Based on {@link EntityStrategy#convertValueFromJson}.
+	 * This method calls {@link StorageStrategy#getAllForObject(String, String)}.
 	 */
 	public List<ChangeVector> getAllForObject(String objectType, String objectId) {
-		final var vectors = storageStrategy.getAllForObject(objectType, objectId);
-		return convertVectorValuesFromJson(vectors);
+		return storageStrategy.getAllForObject(objectType, objectId);
 	}
 
 	/**
 	 * Get all change vectors since a timestamp (inclusive).
 	 * <p>
-	 * This method calls {@link StorageStrategy#getChangesSince(Instant)} and converts the attributes' values to the
-	 * original types.
+	 * This method calls {@link StorageStrategy#getChangesSince(Instant)}.
 	 */
 	public List<ChangeVector> getChangesSince(Instant timestamp) {
-		final var vectors = storageStrategy.getChangesSince(timestamp);
-		return convertVectorValuesFromJson(vectors);
+		return storageStrategy.getChangesSince(timestamp);
 	}
 
 	/**
@@ -126,7 +95,6 @@ public class ChangeTracker {
 	 * values to the original types.
 	 */
 	public List<ChangeVector> getChangesOfTypeSince(Instant timestamp, String objectType) {
-		final var vectors = storageStrategy.getChangesOfTypeSince(timestamp, objectType);
-		return convertVectorValuesFromJson(vectors);
+		return storageStrategy.getChangesOfTypeSince(timestamp, objectType);
 	}
 }

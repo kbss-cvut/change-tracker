@@ -1,6 +1,6 @@
 package cz.cvut.kbss.changetracking.strategy.entity;
 
-import cz.cvut.kbss.changetracking.model.JsonChangeVector;
+import cz.cvut.kbss.changetracking.model.ChangeVector;
 
 import java.util.Collection;
 
@@ -29,7 +29,7 @@ public interface EntityStrategy<TField> {
    * @return A collection of change vectors, representing the changes between the revisions.
    * @throws cz.cvut.kbss.changetracking.exception.ChangeTrackingException When vectors are not successfully created.
    */
-  <T> Collection<JsonChangeVector> getChangeVectors(T older, T newer);
+  <T> Collection<ChangeVector> getChangeVectors(T older, T newer);
 
   /**
    * Get an application-unique string representation of the object's type. This MAY be the name of the object's class.
@@ -47,26 +47,6 @@ public interface EntityStrategy<TField> {
    * @see EntityStrategy#getObjectType(Object)
    */
   String getObjectId(Object o);
-
-  /**
-   * Convert a value of any supported attribute type into JSON.
-   *
-   * @param object object The value.
-   * @return A JSON representation of the value.
-   * @throws cz.cvut.kbss.changetracking.exception.JsonException When conversion to JSON fails.
-   */
-  String convertValueToJson(Object object);
-
-  /**
-   * Convert a value from JSON to a type supported by this {@link EntityStrategy}.
-   *
-   * @param type Fully qualified class name of the type.
-   * @param json JSON representation of the value.
-   * @return The original value.
-   * @throws cz.cvut.kbss.changetracking.exception.JsonException When conversion from JSON fails, for example if the
-   *                                                             class is not supported.
-   */
-  Object convertValueFromJson(String type, String json);
 
   /**
    * Get the attributes/fields of the supplied entity's type.

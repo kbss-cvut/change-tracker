@@ -36,11 +36,21 @@ public abstract class AbstractChangeVector<T> implements Serializable {
 		@NotNull String attributeName,
 		T previousValue
 	) {
+		this(objectType, objectId, attributeName, previousValue, Instant.now());
+	}
+
+	public AbstractChangeVector(
+		@NotNull String objectType,
+		@NotNull String objectId,
+		@NotNull String attributeName,
+		T previousValue,
+		@NotNull Instant timestamp
+	) {
 		this.objectType = objectType;
 		this.objectId = objectId;
 		this.attributeName = attributeName;
 		this.previousValue = previousValue;
-		this.timestamp = Instant.now();
+		this.timestamp = timestamp;
 	}
 
 	public AbstractChangeVector() {

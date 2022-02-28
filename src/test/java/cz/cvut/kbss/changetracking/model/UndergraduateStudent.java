@@ -1,4 +1,4 @@
-package cz.cvut.kbss.changetracking.strategy.entity;
+package cz.cvut.kbss.changetracking.model;
 
 import cz.cvut.kbss.jopa.model.annotations.Id;
 import cz.cvut.kbss.jopa.model.annotations.OWLClass;
@@ -6,8 +6,9 @@ import cz.cvut.kbss.jopa.model.annotations.OWLDataProperty;
 
 import java.net.URI;
 
-@OWLClass(iri = JopaEntityStrategyTest.studentClassIri)
+@OWLClass(iri = UndergraduateStudent.STUDENT_CLASS_IRI)
 public class UndergraduateStudent {
+	public static final String STUDENT_CLASS_IRI = "http://uob.iodt.ibm.com/univ-bench-dl.owl#UndergraduateStudent";
 
 	@Id
 	public URI uri;
