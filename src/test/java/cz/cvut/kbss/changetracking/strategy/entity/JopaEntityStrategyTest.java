@@ -4,10 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.cvut.kbss.changetracking.TestIRIs;
 import cz.cvut.kbss.changetracking.annotation.Audited;
 import cz.cvut.kbss.changetracking.exception.ClassNotAuditedException;
-import cz.cvut.kbss.changetracking.model.ChangeVector;
-import cz.cvut.kbss.changetracking.model.Home;
-import cz.cvut.kbss.changetracking.model.House;
-import cz.cvut.kbss.changetracking.model.UndergraduateStudent;
+import cz.cvut.kbss.changetracking.model.*;
 import cz.cvut.kbss.jopa.loaders.PersistenceUnitClassFinder;
 import cz.cvut.kbss.jopa.model.JOPAPersistenceProperties;
 import cz.cvut.kbss.jopa.model.MetamodelImpl;
@@ -22,12 +19,14 @@ import org.junit.jupiter.api.Test;
 import java.net.URI;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class JopaEntityStrategyTest {
 	static final String studentInstanceIri = "http://www.oni.unsc.org/spartanII/John117";
 	static final String homeInstanceIri = "http://127.0.0.1/instance/SydneyHouse";
+	static final String superheroInstanceIri = "http://127.0.0.1/instance/Jacob";
 	static EntityStrategy<FieldSpecification<?, ?>> strategy;
 
 	final ObjectMapper mapper = new ObjectMapper();
@@ -41,8 +40,28 @@ public class JopaEntityStrategyTest {
 		strategy = new JopaEntityStrategy(metamodel);
 	}
 
-	ChangeVector getVector(Collection<ChangeVector> vectors) {
-		return vectors.toArray(ChangeVector[]::new)[0];
+	static ChangeVector getVector(Collection<ChangeVector> vectors, int index) {
+		return vectors.toArray(ChangeVector[]::new)[index];
+	}
+
+	/**
+	 * Perform all common assertions on a change vector specified by its index in a collection and then return the vector.
+	 */
+	static ChangeVector vectorAssert(
+		Collection<ChangeVector> vectors,
+		int index,
+		String objectType,
+		String objectId,
+		String attributeName,
+		Object previousValue
+	) {
+		var vector = getVector(vectors, index);
+		assertEquals(objectType, vector.getObjectType());
+		assertEquals(objectId, vector.getObjectId());
+		assertEquals(attributeName, vector.getAttributeName());
+		assertEquals(previousValue, vector.getPreviousValue());
+		assertTrue(Instant.now().compareTo(vector.getTimestamp()) > 0);
+		return vector;
 	}
 
 	@Test
@@ -52,13 +71,14 @@ public class JopaEntityStrategyTest {
 
 		var vectors = strategy.getChangeVectors(student1, student2);
 		assertEquals(1, vectors.size());
-		var vector = getVector(vectors);
-		assertEquals(TestIRIs.CLASS_STUDENT, vector.getObjectType());
-		assertEquals(studentInstanceIri, vector.getObjectId());
-		assertEquals("http://uob.iodt.ibm.com/univ-bench-dl.owl#firstName", vector.getAttributeName());
-		assertEquals(student1.firstName, vector.getPreviousValue());
-		//assertNotNull(vector.getId());
-		assertTrue(Instant.now().compareTo(vector.getTimestamp()) > 0);
+		vectorAssert(
+			vectors,
+			0,
+			TestIRIs.CLASS_STUDENT,
+			studentInstanceIri,
+			TestIRIs.PROPERTY_FIRST_NAME,
+			student1.firstName
+		);
 	}
 
 	@Test
@@ -84,13 +104,14 @@ public class JopaEntityStrategyTest {
 
 		var vectors = strategy.getChangeVectors(home, house);
 		assertEquals(1, vectors.size());
-		var vector = getVector(vectors);
-		assertEquals(TestIRIs.CLASS_HOME, vector.getObjectType());
-		assertEquals(homeInstanceIri, vector.getObjectId());
-		assertEquals("http://127.0.0.1/owl#city", vector.getAttributeName());
-		assertEquals(home.getCity(), vector.getPreviousValue());
-		//assertNotNull(vector.getId());
-		assertTrue(Instant.now().compareTo(vector.getTimestamp()) > 0);
+		vectorAssert(
+			vectors,
+			0,
+			TestIRIs.CLASS_HOME,
+			homeInstanceIri,
+			TestIRIs.PROPERTY_CITY,
+			home.getCity()
+		);
 	}
 
 	@Test
@@ -109,13 +130,14 @@ public class JopaEntityStrategyTest {
 
 		var vectors = strategy.getChangeVectors(house, home);
 		assertEquals(1, vectors.size());
-		var vector = getVector(vectors);
-		assertEquals(TestIRIs.CLASS_HOME, vector.getObjectType());
-		assertEquals(homeInstanceIri, vector.getObjectId());
-		assertEquals("http://127.0.0.1/owl#city", vector.getAttributeName());
-		assertEquals(house.getCity(), vector.getPreviousValue());
-		//assertNotNull(vector.getId());
-		assertTrue(Instant.now().compareTo(vector.getTimestamp()) > 0);
+		vectorAssert(
+			vectors,
+			0,
+			TestIRIs.CLASS_HOME,
+			homeInstanceIri,
+			TestIRIs.PROPERTY_CITY,
+			house.getCity()
+		);
 	}
 
 	// FIXME: this may be semantically wrong
