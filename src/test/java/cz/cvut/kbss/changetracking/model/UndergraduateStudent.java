@@ -1,22 +1,22 @@
 package cz.cvut.kbss.changetracking.model;
 
+import cz.cvut.kbss.changetracking.TestIRIs;
 import cz.cvut.kbss.jopa.model.annotations.Id;
 import cz.cvut.kbss.jopa.model.annotations.OWLClass;
 import cz.cvut.kbss.jopa.model.annotations.OWLDataProperty;
 
 import java.net.URI;
 
-@OWLClass(iri = UndergraduateStudent.STUDENT_CLASS_IRI)
+@OWLClass(iri = TestIRIs.CLASS_STUDENT)
 public class UndergraduateStudent {
-	public static final String STUDENT_CLASS_IRI = "http://uob.iodt.ibm.com/univ-bench-dl.owl#UndergraduateStudent";
 
 	@Id
 	public URI uri;
 
-	@OWLDataProperty(iri = "http://uob.iodt.ibm.com/univ-bench-dl.owl#firstName")
+	@OWLDataProperty(iri = TestIRIs.PROPERTY_FIRST_NAME)
 	public String firstName;
 
-	@OWLDataProperty(iri = "http://uob.iodt.ibm.com/univ-bench-dl.owl#lastName")
+	@OWLDataProperty(iri = TestIRIs.PROPERTY_LAST_NAME)
 	public String lastName;
 
 	public UndergraduateStudent(String uri, String firstName, String lastName) {

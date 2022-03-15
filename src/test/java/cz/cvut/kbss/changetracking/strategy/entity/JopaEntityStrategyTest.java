@@ -1,6 +1,7 @@
 package cz.cvut.kbss.changetracking.strategy.entity;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import cz.cvut.kbss.changetracking.TestIRIs;
 import cz.cvut.kbss.changetracking.annotation.Audited;
 import cz.cvut.kbss.changetracking.exception.ClassNotAuditedException;
 import cz.cvut.kbss.changetracking.model.ChangeVector;
@@ -52,7 +53,7 @@ public class JopaEntityStrategyTest {
 		var vectors = strategy.getChangeVectors(student1, student2);
 		assertEquals(1, vectors.size());
 		var vector = getVector(vectors);
-		assertEquals(UndergraduateStudent.STUDENT_CLASS_IRI, vector.getObjectType());
+		assertEquals(TestIRIs.CLASS_STUDENT, vector.getObjectType());
 		assertEquals(studentInstanceIri, vector.getObjectId());
 		assertEquals("http://uob.iodt.ibm.com/univ-bench-dl.owl#firstName", vector.getAttributeName());
 		assertEquals(student1.firstName, vector.getPreviousValue());
@@ -84,7 +85,7 @@ public class JopaEntityStrategyTest {
 		var vectors = strategy.getChangeVectors(home, house);
 		assertEquals(1, vectors.size());
 		var vector = getVector(vectors);
-		assertEquals(Home.HOME_CLASS_IRI, vector.getObjectType());
+		assertEquals(TestIRIs.CLASS_HOME, vector.getObjectType());
 		assertEquals(homeInstanceIri, vector.getObjectId());
 		assertEquals("http://127.0.0.1/owl#city", vector.getAttributeName());
 		assertEquals(home.getCity(), vector.getPreviousValue());
@@ -109,7 +110,7 @@ public class JopaEntityStrategyTest {
 		var vectors = strategy.getChangeVectors(house, home);
 		assertEquals(1, vectors.size());
 		var vector = getVector(vectors);
-		assertEquals(Home.HOME_CLASS_IRI, vector.getObjectType());
+		assertEquals(TestIRIs.CLASS_HOME, vector.getObjectType());
 		assertEquals(homeInstanceIri, vector.getObjectId());
 		assertEquals("http://127.0.0.1/owl#city", vector.getAttributeName());
 		assertEquals(house.getCity(), vector.getPreviousValue());

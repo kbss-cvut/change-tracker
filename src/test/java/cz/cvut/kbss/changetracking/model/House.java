@@ -1,15 +1,15 @@
 package cz.cvut.kbss.changetracking.model;
 
+import cz.cvut.kbss.changetracking.TestIRIs;
 import cz.cvut.kbss.changetracking.annotation.Audited;
 import cz.cvut.kbss.jopa.model.annotations.OWLClass;
 import cz.cvut.kbss.jopa.model.annotations.OWLDataProperty;
 
-@OWLClass(iri = House.HOUSE_CLASS_IRI)
+@OWLClass(iri = TestIRIs.CLASS_HOUSE)
 @Audited
 public class House extends Home {
-	public static final String HOUSE_CLASS_IRI = "http://127.0.0.1/owl#House";
 
-	@OWLDataProperty(iri = "http://127.0.0.1/owl#floors")
+	@OWLDataProperty(iri = TestIRIs.PROPERTY_FLOORS)
 	private Integer floors;
 
 	public House(String uri, String name, Integer floors) {

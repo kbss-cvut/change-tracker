@@ -1,5 +1,6 @@
 package cz.cvut.kbss.changetracking.model;
 
+import cz.cvut.kbss.changetracking.TestIRIs;
 import cz.cvut.kbss.changetracking.annotation.Audited;
 import cz.cvut.kbss.jopa.model.annotations.Id;
 import cz.cvut.kbss.jopa.model.annotations.OWLClass;
@@ -7,14 +8,13 @@ import cz.cvut.kbss.jopa.model.annotations.OWLDataProperty;
 
 import java.net.URI;
 
-@OWLClass(iri = Home.HOME_CLASS_IRI)
+@OWLClass(iri = TestIRIs.CLASS_HOME)
 @Audited
 public class Home {
-	public static final String HOME_CLASS_IRI = "http://127.0.0.1/owl#Home";
 	@Id(generated = true)
 	protected URI uri;
 
-	@OWLDataProperty(iri = "http://127.0.0.1/owl#city")
+	@OWLDataProperty(iri = TestIRIs.PROPERTY_CITY)
 	protected String city;
 
 	public Home(String uri, String city) {
