@@ -22,7 +22,8 @@ public interface EntityStrategy<TField> {
   void checkClassSupported(Class<?> clazz);
 
   /**
-   * Create change vectors between two revisions of an object.
+   * Create change vectors between two revisions of an object. The revisions have to be mutually compatible, i.e.
+	 * instances of the same class or have a common non-interface ancestor in the class hierarchy.
    *
    * @param older The older revision of the observed object.
    * @param newer The newer revision of the observed object.

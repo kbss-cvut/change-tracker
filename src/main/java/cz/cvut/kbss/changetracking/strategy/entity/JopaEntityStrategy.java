@@ -36,6 +36,9 @@ public class JopaEntityStrategy implements EntityStrategy<FieldSpecification<?, 
 		Collection<FieldSpecification<?, ?>> fieldSpecs;
 
 		if (type1.equals(type2)) {
+			var clazz = older.getClass();
+			checkClassSupported(clazz);
+
 			typeName = type1;
 			fieldSpecs = getAttributes(older);
 		} else {

@@ -1,11 +1,11 @@
 package cz.cvut.kbss.changetracking.exception;
 
 /**
- * {link {@link ChangeTrackingException} is the change tracker's specific {@link RuntimeException}.
+ * {@link ChangeTrackingException} is the change tracker's specific {@link RuntimeException}.
  * <p>
  * All exceptions thrown by the change tracker should inherit from this class.
  */
-public class ChangeTrackingException extends RuntimeException {
+public abstract class ChangeTrackingException extends RuntimeException {
 	public ChangeTrackingException(String s, Throwable cause) {
 		super(s, cause);
 	}

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.cvut.kbss.changetracking.TestIRIs;
 import cz.cvut.kbss.changetracking.annotation.Audited;
 import cz.cvut.kbss.changetracking.exception.ClassNotAuditedException;
+import cz.cvut.kbss.changetracking.exception.ObjectsNotCompatibleException;
 import cz.cvut.kbss.changetracking.model.*;
 import cz.cvut.kbss.jopa.loaders.PersistenceUnitClassFinder;
 import cz.cvut.kbss.jopa.model.JOPAPersistenceProperties;
@@ -138,6 +139,14 @@ public class JopaEntityStrategyTest {
 			TestIRIs.PROPERTY_CITY,
 			house.getCity()
 		);
+	}
+
+	@Test
+	void getChangeVectors_twoDifferentClasses_throwsObjectsNotCompatibleException() {
+		var home = new Home(homeInstanceIri, "Sydney");
+		var student = new UndergraduateStudent(studentInstanceIri, "James", "LaFleur");
+
+		assertThrows(ObjectsNotCompatibleException.class, () -> strategy.getChangeVectors(home, student));
 	}
 
 	@Test

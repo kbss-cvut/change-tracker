@@ -47,14 +47,6 @@ public class ChangeTracker {
 		Objects.requireNonNull(older);
 		Objects.requireNonNull(newer);
 
-		var aClass = newer.getClass();
-		var bClass = older.getClass();
-		if (aClass != bClass)
-			// TODO: inheritance
-			throw new ObjectsNotCompatibleException(older, newer);
-
-		entityStrategy.checkClassSupported(aClass);
-
 		return entityStrategy.getChangeVectors(older, newer);
 	}
 

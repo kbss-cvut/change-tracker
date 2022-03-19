@@ -1,6 +1,7 @@
 package cz.cvut.kbss.changetracking.model;
 
 import cz.cvut.kbss.changetracking.TestIRIs;
+import cz.cvut.kbss.changetracking.annotation.Audited;
 import cz.cvut.kbss.jopa.model.annotations.Id;
 import cz.cvut.kbss.jopa.model.annotations.OWLClass;
 import cz.cvut.kbss.jopa.model.annotations.OWLDataProperty;
@@ -8,6 +9,7 @@ import cz.cvut.kbss.jopa.model.annotations.OWLDataProperty;
 import java.net.URI;
 
 @OWLClass(iri = TestIRIs.CLASS_STUDENT)
+@Audited
 public class UndergraduateStudent {
 
 	@Id
