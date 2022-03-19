@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.cvut.kbss.changetracking.TestIRIs;
 import cz.cvut.kbss.changetracking.annotation.Audited;
 import cz.cvut.kbss.changetracking.exception.ClassNotAuditedException;
+import cz.cvut.kbss.changetracking.exception.IdNotMatchingException;
 import cz.cvut.kbss.changetracking.exception.ObjectsNotCompatibleException;
 import cz.cvut.kbss.changetracking.model.*;
 import cz.cvut.kbss.jopa.loaders.PersistenceUnitClassFinder;
@@ -73,7 +74,7 @@ public class JopaEntityStrategyTest {
 		var student1 = new UndergraduateStudent(studentInstanceIri, "John", "Spartan");
 		var student2 = new UndergraduateStudent(studentInstanceIri, "Dave", "Spartan");
 
-		var vectors = strategy.getChangeVectors(student1, student2);
+		var vectors = strategy.getChangeVectors(student1, student2, true);
 		assertEquals(1, vectors.size());
 		vectorAssert(
 			vectors,
@@ -87,7 +88,7 @@ public class JopaEntityStrategyTest {
 	@Test
 	void getChangeVectors_unchangedStudent_returnsEmptyVectorCollection() {
 		var student = new UndergraduateStudent(studentInstanceIri, "John", "Spartan");
-		var vectors = strategy.getChangeVectors(student, student);
+		var vectors = strategy.getChangeVectors(student, student, true);
 		assertEquals(0, vectors.size());
 	}
 
@@ -96,7 +97,7 @@ public class JopaEntityStrategyTest {
 		var home = new Home(homeInstanceIri, "Sydney");
 		var house = new House(homeInstanceIri, "Sydney", 4);
 
-		var vectors = strategy.getChangeVectors(home, house);
+		var vectors = strategy.getChangeVectors(home, house, true);
 		assertEquals(0, vectors.size());
 	}
 
@@ -105,7 +106,7 @@ public class JopaEntityStrategyTest {
 		var home = new Home(homeInstanceIri, "Sydney");
 		var house = new House(homeInstanceIri, "Los Angeles", 8);
 
-		var vectors = strategy.getChangeVectors(home, house);
+		var vectors = strategy.getChangeVectors(home, house, true);
 		assertEquals(1, vectors.size());
 		vectorAssert(
 			vectors,
@@ -121,7 +122,7 @@ public class JopaEntityStrategyTest {
 		var home = new Home(homeInstanceIri, "Sydney");
 		var house = new House(homeInstanceIri, "Sydney", 15);
 
-		var vectors = strategy.getChangeVectors(house, home);
+		var vectors = strategy.getChangeVectors(house, home, true);
 		assertEquals(0, vectors.size());
 	}
 
@@ -130,7 +131,7 @@ public class JopaEntityStrategyTest {
 		var home = new Home(homeInstanceIri, "Sydney");
 		var house = new House(homeInstanceIri, "Los Angeles", 16);
 
-		var vectors = strategy.getChangeVectors(house, home);
+		var vectors = strategy.getChangeVectors(house, home, true);
 		assertEquals(1, vectors.size());
 		vectorAssert(
 			vectors,
@@ -144,9 +145,9 @@ public class JopaEntityStrategyTest {
 	@Test
 	void getChangeVectors_twoDifferentClasses_throwsObjectsNotCompatibleException() {
 		var home = new Home(homeInstanceIri, "Sydney");
-		var student = new UndergraduateStudent(studentInstanceIri, "James", "LaFleur");
+		var student = new UndergraduateStudent(homeInstanceIri, "James", "LaFleur");
 
-		assertThrows(ObjectsNotCompatibleException.class, () -> strategy.getChangeVectors(home, student));
+		assertThrows(ObjectsNotCompatibleException.class, () -> strategy.getChangeVectors(home, student, true));
 	}
 
 	@Test
@@ -154,7 +155,7 @@ public class JopaEntityStrategyTest {
 		var hero1 = new Superhero(superheroInstanceIri, "Jacob", new HashMap<>());
 		var hero2 = new Superhero(superheroInstanceIri, "Jacob", new HashMap<>());
 
-		var vectors = strategy.getChangeVectors(hero1, hero2);
+		var vectors = strategy.getChangeVectors(hero1, hero2, true);
 		assertEquals(0, vectors.size());
 	}
 
@@ -163,7 +164,7 @@ public class JopaEntityStrategyTest {
 		var hero1 = new Superhero(superheroInstanceIri, "Jacob", new HashMap<>());
 		var hero2 = new Superhero(superheroInstanceIri, "Jacob", null);
 
-		var vectors = strategy.getChangeVectors(hero1, hero2);
+		var vectors = strategy.getChangeVectors(hero1, hero2, true);
 		assertEquals(0, vectors.size());
 	}
 
@@ -172,7 +173,7 @@ public class JopaEntityStrategyTest {
 		var hero1 = new Superhero(superheroInstanceIri, "Jacob", null);
 		var hero2 = new Superhero(superheroInstanceIri, "Jacob", new HashMap<>());
 
-		var vectors = strategy.getChangeVectors(hero1, hero2);
+		var vectors = strategy.getChangeVectors(hero1, hero2, true);
 		assertEquals(0, vectors.size());
 	}
 
@@ -181,7 +182,7 @@ public class JopaEntityStrategyTest {
 		var hero1 = new Superhero(superheroInstanceIri, "Jacob", new HashMap<>());
 		var hero2 = new Superhero(superheroInstanceIri, "Jake", new HashMap<>());
 
-		var vectors = strategy.getChangeVectors(hero1, hero2);
+		var vectors = strategy.getChangeVectors(hero1, hero2, true);
 		assertEquals(1, vectors.size());
 		vectorAssert(
 			vectors,
@@ -199,7 +200,7 @@ public class JopaEntityStrategyTest {
 		var hero1 = new Superhero(superheroInstanceIri, "Jacob", props);
 		var hero2 = new Superhero(superheroInstanceIri, "Jacob", new HashMap<>());
 
-		var vectors = strategy.getChangeVectors(hero1, hero2);
+		var vectors = strategy.getChangeVectors(hero1, hero2, true);
 		assertEquals(1, vectors.size());
 		vectorAssert(
 			vectors,
@@ -218,7 +219,7 @@ public class JopaEntityStrategyTest {
 		var hero1 = new Superhero(superheroInstanceIri, "Jacob", new HashMap<>());
 		var hero2 = new Superhero(superheroInstanceIri, "Jacob", props);
 
-		var vectors = strategy.getChangeVectors(hero1, hero2);
+		var vectors = strategy.getChangeVectors(hero1, hero2, true);
 		assertEquals(1, vectors.size());
 		vectorAssert(
 			vectors,
@@ -238,7 +239,7 @@ public class JopaEntityStrategyTest {
 		var hero1 = new Superhero(superheroInstanceIri, "Jacob", props1);
 		var hero2 = new Superhero(superheroInstanceIri, "Jacob", props2);
 
-		var vectors = strategy.getChangeVectors(hero1, hero2);
+		var vectors = strategy.getChangeVectors(hero1, hero2, true);
 		assertEquals(1, vectors.size());
 		vectorAssert(
 			vectors,
@@ -259,7 +260,7 @@ public class JopaEntityStrategyTest {
 		var hero1 = new Superhero(superheroInstanceIri, "Jacob", props1);
 		var hero2 = new Superhero(superheroInstanceIri, "Jake", props2);
 
-		var vectors = strategy.getChangeVectors(hero1, hero2);
+		var vectors = strategy.getChangeVectors(hero1, hero2, true);
 		assertEquals(2, vectors.size());
 		vectorAssert(
 			vectors,
@@ -276,6 +277,22 @@ public class JopaEntityStrategyTest {
 			// TODO: make it not require the toString()
 			Collections.singleton(Boolean.FALSE.toString())
 		);
+	}
+
+	@Test
+	void getChangeVectors_differentIdsAndRequireSameIdTrue_throwsIdNotMatchingException() {
+		var home1 = new Home(homeInstanceIri + "1", "Sydney");
+		var home2 = new Home(homeInstanceIri + "2", "Sydney");
+
+		assertThrows(IdNotMatchingException.class, () -> strategy.getChangeVectors(home1, home2, true));
+	}
+
+	@Test
+	void getChangeVectors_differentIdsAndRequireSameIdFalse_doesNotThrow() {
+		var home1 = new Home(homeInstanceIri + "1", "Sydney");
+		var home2 = new Home(homeInstanceIri + "2", "Sydney");
+
+		assertDoesNotThrow(() -> strategy.getChangeVectors(home1, home2, false));
 	}
 
 	// FIXME: this may be semantically wrong

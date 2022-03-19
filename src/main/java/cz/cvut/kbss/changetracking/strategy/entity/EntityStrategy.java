@@ -27,10 +27,13 @@ public interface EntityStrategy<TField> {
    *
    * @param older The older revision of the observed object.
    * @param newer The newer revision of the observed object.
-   * @return A collection of change vectors, representing the changes between the revisions.
+   * @param requireSameId If true, throw an exception when the objects' IDs don't match.
+	 * @return A collection of change vectors, representing the changes between the revisions.
    * @throws cz.cvut.kbss.changetracking.exception.ChangeTrackingException When vectors are not successfully created.
+	 * @throws cz.cvut.kbss.changetracking.exception.IdNotMatchingException When the objects' IDs don't match and
+	 * {@code requireSameId} is {@code true}.
    */
-  <T> Collection<ChangeVector> getChangeVectors(T older, T newer);
+  <T> Collection<ChangeVector> getChangeVectors(T older, T newer, boolean requireSameId);
 
   /**
    * Get an application-unique string representation of the object's type. This MAY be the name of the object's class.

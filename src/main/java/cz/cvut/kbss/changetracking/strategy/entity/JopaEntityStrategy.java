@@ -3,6 +3,7 @@ package cz.cvut.kbss.changetracking.strategy.entity;
 import cz.cvut.kbss.changetracking.annotation.Audited;
 import cz.cvut.kbss.changetracking.exception.AccessDeniedException;
 import cz.cvut.kbss.changetracking.exception.ClassNotAuditedException;
+import cz.cvut.kbss.changetracking.exception.IdNotMatchingException;
 import cz.cvut.kbss.changetracking.exception.ObjectsNotCompatibleException;
 import cz.cvut.kbss.changetracking.model.ChangeVector;
 import cz.cvut.kbss.changetracking.util.ClassUtil;
@@ -26,11 +27,14 @@ public class JopaEntityStrategy implements EntityStrategy<FieldSpecification<?, 
 	}
 
 	@Override
-	public final <TEntity> Collection<ChangeVector> getChangeVectors(TEntity older, TEntity newer) {
+	public final <TEntity> Collection<ChangeVector> getChangeVectors(TEntity older, TEntity newer, boolean requireSameId) {
 		var type1 = getObjectType(older);
 		var type2 = getObjectType(newer);
 		var id1 = getObjectId(older);
-		// TODO: id2?
+		var id2 = getObjectId(newer);
+
+		if (requireSameId && !Objects.equals(id1, id2))
+			throw new IdNotMatchingException(id1, id2);
 
 		String typeName;
 		Collection<FieldSpecification<?, ?>> fieldSpecs;

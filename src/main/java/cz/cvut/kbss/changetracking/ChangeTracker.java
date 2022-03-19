@@ -32,22 +32,33 @@ public class ChangeTracker {
 	}
 
 	/**
+	 * {@code requireSameId} defaults to {@code true}.
+	 * @see ChangeTracker#compare(Object, Object, boolean)
+	 */
+	public Collection<ChangeVector> compare(Object older, Object newer) {
+		return compare(older, newer, true);
+	}
+
+	/**
 	 * Compare two revisions of an object.
 	 *
 	 * @param older The older revision of the object.
 	 * @param newer The newer revision of the object.
+	 * @param requireSameId If true, throw an exception when the objects' IDs don't match.
 	 * @return A collection of change vectors between the two revisions.
 	 * @throws ObjectsNotCompatibleException                                  If the objects are not mutually compatible.
 	 * @throws cz.cvut.kbss.changetracking.exception.ClassNotAuditedException If at least one of the objects' classes is
 	 *                                                                        supported by the current {@link
 	 *                                                                        EntityStrategy}.
+	 * @throws cz.cvut.kbss.changetracking.exception.IdNotMatchingException		When the objects' IDs don't match and
+	 *																																				{@code requireSameId} is {@code true}.
 	 */
 	@SuppressWarnings("unchecked")
-	public Collection<ChangeVector> compare(Object older, Object newer) {
+	public Collection<ChangeVector> compare(Object older, Object newer, boolean requireSameId) {
 		Objects.requireNonNull(older);
 		Objects.requireNonNull(newer);
 
-		return entityStrategy.getChangeVectors(older, newer);
+		return entityStrategy.getChangeVectors(older, newer, requireSameId);
 	}
 
 	/**
