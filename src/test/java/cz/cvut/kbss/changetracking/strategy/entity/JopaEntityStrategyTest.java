@@ -18,8 +18,7 @@ import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 import java.time.Instant;
-import java.util.Collection;
-import java.util.HashMap;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -45,21 +44,25 @@ public class JopaEntityStrategyTest {
 	}
 
 	/**
-	 * Perform all common assertions on a change vector specified by its index in a collection and then return the vector.
+	 * Perform all common assertions on a change vector specified by its properties and then return the matched vector.
+	 * This method cannot directly access vectors in the collection by converting it into an array and then using an
+	 * index because the order is unstable (due to underlying implementation in JOPA).
 	 */
 	static ChangeVector vectorAssert(
 		Collection<ChangeVector> vectors,
-		int index,
 		String objectType,
 		String objectId,
 		String attributeName,
 		Object previousValue
 	) {
-		var vector = getVector(vectors, index);
-		assertEquals(objectType, vector.getObjectType());
-		assertEquals(objectId, vector.getObjectId());
-		assertEquals(attributeName, vector.getAttributeName());
-		assertEquals(previousValue, vector.getPreviousValue());
+		var vectorOptional = vectors.stream().filter(vector ->
+			Objects.equals(objectType, vector.getObjectType())
+			&& Objects.equals(objectId, vector.getObjectId())
+			&& Objects.equals(attributeName, vector.getAttributeName())
+			&& Objects.equals(previousValue, vector.getPreviousValue())
+		).findFirst();
+		assertTrue(vectorOptional.isPresent());
+		var vector = vectorOptional.get();
 		assertTrue(Instant.now().compareTo(vector.getTimestamp()) > 0);
 		return vector;
 	}
@@ -73,7 +76,6 @@ public class JopaEntityStrategyTest {
 		assertEquals(1, vectors.size());
 		vectorAssert(
 			vectors,
-			0,
 			TestIRIs.CLASS_STUDENT,
 			studentInstanceIri,
 			TestIRIs.PROPERTY_FIRST_NAME,
@@ -106,7 +108,6 @@ public class JopaEntityStrategyTest {
 		assertEquals(1, vectors.size());
 		vectorAssert(
 			vectors,
-			0,
 			TestIRIs.CLASS_HOME,
 			homeInstanceIri,
 			TestIRIs.PROPERTY_CITY,
@@ -132,11 +133,139 @@ public class JopaEntityStrategyTest {
 		assertEquals(1, vectors.size());
 		vectorAssert(
 			vectors,
-			0,
 			TestIRIs.CLASS_HOME,
 			homeInstanceIri,
 			TestIRIs.PROPERTY_CITY,
 			house.getCity()
+		);
+	}
+
+	@Test
+	void getChangeVectors_propertySpecificationEmptyAndEmptyAndNoDataPropertyChanges_noVectors() {
+		var hero1 = new Superhero(superheroInstanceIri, "Jacob", new HashMap<>());
+		var hero2 = new Superhero(superheroInstanceIri, "Jacob", new HashMap<>());
+
+		var vectors = strategy.getChangeVectors(hero1, hero2);
+		assertEquals(0, vectors.size());
+	}
+
+	@Test
+	void getChangeVectors_propertySpecificationEmptyAndNullAndNoDataPropertyChanges_noVectors() {
+		var hero1 = new Superhero(superheroInstanceIri, "Jacob", new HashMap<>());
+		var hero2 = new Superhero(superheroInstanceIri, "Jacob", null);
+
+		var vectors = strategy.getChangeVectors(hero1, hero2);
+		assertEquals(0, vectors.size());
+	}
+
+	@Test
+	void getChangeVectors_propertySpecificationNullAndEmptyAndNoDataPropertyChanges_noVectors() {
+		var hero1 = new Superhero(superheroInstanceIri, "Jacob", null);
+		var hero2 = new Superhero(superheroInstanceIri, "Jacob", new HashMap<>());
+
+		var vectors = strategy.getChangeVectors(hero1, hero2);
+		assertEquals(0, vectors.size());
+	}
+
+	@Test
+	void getChangeVectors_propertySpecificationEmptyAndEmptyAndOneDataPropertyChange_dataPropertyVectorOnly() {
+		var hero1 = new Superhero(superheroInstanceIri, "Jacob", new HashMap<>());
+		var hero2 = new Superhero(superheroInstanceIri, "Jake", new HashMap<>());
+
+		var vectors = strategy.getChangeVectors(hero1, hero2);
+		assertEquals(1, vectors.size());
+		vectorAssert(
+			vectors,
+			TestIRIs.CLASS_SUPERHERO,
+			superheroInstanceIri,
+			TestIRIs.PROPERTY_FIRST_NAME,
+			"Jacob"
+		);
+	}
+
+	@Test
+	void getChangeVectors_propertySpecificationOnePropertyOnlyInOld_oneVectorWithPreviousValue() {
+		var props = new HashMap<String, Set<String>>();
+		props.put(TestIRIs.PROPERTY_GOOD_GUY, Collections.singleton(Boolean.TRUE.toString()));
+		var hero1 = new Superhero(superheroInstanceIri, "Jacob", props);
+		var hero2 = new Superhero(superheroInstanceIri, "Jacob", new HashMap<>());
+
+		var vectors = strategy.getChangeVectors(hero1, hero2);
+		assertEquals(1, vectors.size());
+		vectorAssert(
+			vectors,
+			TestIRIs.CLASS_SUPERHERO,
+			superheroInstanceIri,
+			TestIRIs.PROPERTY_GOOD_GUY,
+			// TODO: make it not require the toString()
+			Collections.singleton(Boolean.TRUE.toString())
+		);
+	}
+
+	@Test
+	void getChangeVectors_propertySpecificationOnePropertyOnlyInNew_oneVectorWithNull() {
+		var props = new HashMap<String, Set<String>>();
+		props.put(TestIRIs.PROPERTY_GOOD_GUY, Collections.singleton(Boolean.TRUE.toString()));
+		var hero1 = new Superhero(superheroInstanceIri, "Jacob", new HashMap<>());
+		var hero2 = new Superhero(superheroInstanceIri, "Jacob", props);
+
+		var vectors = strategy.getChangeVectors(hero1, hero2);
+		assertEquals(1, vectors.size());
+		vectorAssert(
+			vectors,
+			TestIRIs.CLASS_SUPERHERO,
+			superheroInstanceIri,
+			TestIRIs.PROPERTY_GOOD_GUY,
+			null
+		);
+	}
+
+	@Test
+	void getChangeVectors_propertySpecificationOnePropertyDiffering_oneVectorWithPreviousValue() {
+		var props1 = new HashMap<String, Set<String>>();
+		props1.put(TestIRIs.PROPERTY_GOOD_GUY, Collections.singleton(Boolean.FALSE.toString()));
+		var props2 = new HashMap<String, Set<String>>();
+		props2.put(TestIRIs.PROPERTY_GOOD_GUY, Collections.singleton(Boolean.TRUE.toString()));
+		var hero1 = new Superhero(superheroInstanceIri, "Jacob", props1);
+		var hero2 = new Superhero(superheroInstanceIri, "Jacob", props2);
+
+		var vectors = strategy.getChangeVectors(hero1, hero2);
+		assertEquals(1, vectors.size());
+		vectorAssert(
+			vectors,
+			TestIRIs.CLASS_SUPERHERO,
+			superheroInstanceIri,
+			TestIRIs.PROPERTY_GOOD_GUY,
+			// TODO: make it not require the toString()
+			Collections.singleton(Boolean.FALSE.toString())
+		);
+	}
+
+	@Test
+	void getChangeVectors_propertySpecificationOnePropertyAndOneDataPropDiffering_twoVectorsWithPreviousValues() {
+		var props1 = new HashMap<String, Set<String>>();
+		props1.put(TestIRIs.PROPERTY_GOOD_GUY, Collections.singleton(Boolean.FALSE.toString()));
+		var props2 = new HashMap<String, Set<String>>();
+		props2.put(TestIRIs.PROPERTY_GOOD_GUY, Collections.singleton(Boolean.TRUE.toString()));
+		var hero1 = new Superhero(superheroInstanceIri, "Jacob", props1);
+		var hero2 = new Superhero(superheroInstanceIri, "Jake", props2);
+
+		var vectors = strategy.getChangeVectors(hero1, hero2);
+		assertEquals(2, vectors.size());
+		vectorAssert(
+			vectors,
+			TestIRIs.CLASS_SUPERHERO,
+			superheroInstanceIri,
+			TestIRIs.PROPERTY_FIRST_NAME,
+			"Jacob"
+		);
+		vectorAssert(
+			vectors,
+			TestIRIs.CLASS_SUPERHERO,
+			superheroInstanceIri,
+			TestIRIs.PROPERTY_GOOD_GUY,
+			// TODO: make it not require the toString()
+			Collections.singleton(Boolean.FALSE.toString())
 		);
 	}
 

@@ -8,13 +8,15 @@ import cz.cvut.kbss.changetracking.model.ChangeVector;
 import cz.cvut.kbss.changetracking.util.ClassUtil;
 import cz.cvut.kbss.jopa.model.annotations.OWLClass;
 import cz.cvut.kbss.jopa.model.annotations.OWLDataProperty;
-import cz.cvut.kbss.jopa.model.metamodel.FieldSpecification;
-import cz.cvut.kbss.jopa.model.metamodel.Metamodel;
+import cz.cvut.kbss.jopa.model.metamodel.*;
+import cz.cvut.kbss.jopa.vocabulary.RDF;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class JopaEntityStrategy implements EntityStrategy<FieldSpecification<?, ?>> {
 	private final Metamodel metamodel;
@@ -31,11 +33,11 @@ public class JopaEntityStrategy implements EntityStrategy<FieldSpecification<?, 
 		// TODO: id2?
 
 		String typeName;
-		Collection<FieldSpecification<?, ?>> attributes;
+		Collection<FieldSpecification<?, ?>> fieldSpecs;
 
 		if (type1.equals(type2)) {
 			typeName = type1;
-			attributes = getAttributes(older);
+			fieldSpecs = getAttributes(older);
 		} else {
 			// get common ancestor
 			var clazz = ClassUtil.getCommonSuperclass(older.getClass(), newer.getClass());
@@ -51,18 +53,27 @@ public class JopaEntityStrategy implements EntityStrategy<FieldSpecification<?, 
 
 			// TODO: refactor getAttributes to work with classes - analogically to the above
 			//noinspection unchecked
-			attributes = (Collection<FieldSpecification<?, ?>>) metamodel.entity(clazz).getFieldSpecifications();
+			fieldSpecs = (Collection<FieldSpecification<?, ?>>) metamodel.entity(clazz).getFieldSpecifications();
 		}
 
 
-		return attributes
+		return fieldSpecs
 			.stream()
-			.map(attr -> {
+			.flatMap(attr -> {
 				var val1 = getAttributeValue(attr, older);
 				var val2 = getAttributeValue(attr, newer);
 				if (!Objects.equals(val1, val2)) {
-					final var attributeName = getAttributeName(attr);
-					return new ChangeVector(typeName, id1, attributeName, val1);
+					final var fieldName = getAttributeName(attr);
+					if (attr instanceof Attribute) {
+						return Stream.of(new ChangeVector(typeName, id1, fieldName, val1));
+					} else if (attr instanceof TypesSpecification) {
+						return Stream.empty();
+						// TODO
+					} else if (attr instanceof PropertiesSpecification) {
+						return createVectorsForUnmappedProperties(typeName, id1, (Map<?, ?>) val1, (Map<?, ?>) val2);
+					} else {
+						return null;
+					}
 				} else return null;
 			})
 			.filter(Objects::nonNull)
@@ -81,11 +92,58 @@ public class JopaEntityStrategy implements EntityStrategy<FieldSpecification<?, 
 		return (Collection<FieldSpecification<?, ?>>) metamodel.entity(entity.getClass()).getFieldSpecifications();
 	}
 
+	protected Stream<ChangeVector> createVectorsForUnmappedProperties(
+		String objectType, String objectId,
+		Map<?, ?> older,
+		Map<?, ?> newer
+	) {
+		var olderEmpty = older == null || older.isEmpty();
+		var newerEmpty = newer == null || newer.isEmpty();
+
+		// early exits
+		if (olderEmpty) {
+			if (newerEmpty) {
+				return Stream.empty();
+			} else {
+				return newer
+					.keySet()
+					.stream()
+					.map(k -> new ChangeVector(objectType, objectId, k.toString(), null));
+			}
+		} else if (newerEmpty) {
+			return older
+				.entrySet()
+				.stream()
+				.map(entry -> new ChangeVector(objectType, objectId, entry.getKey().toString(), entry.getValue()));
+		}
+
+		var diffsFromOlder = older
+			.entrySet()
+			.stream()
+			.filter(entry -> !Objects.equals(older.get(entry.getValue()), newer.get(entry.getKey())))
+			.collect(Collectors.toMap(
+				Map.Entry::getKey,
+				entry -> new ChangeVector(objectType, objectId, entry.getKey().toString(), entry.getValue())
+			));
+
+		var diffsFromNewer = newer
+			.keySet()
+			.stream()
+			.filter(k -> !diffsFromOlder.containsKey(k))
+			.map(o -> new ChangeVector(objectType, objectId, o.toString(), null));
+
+		return Stream.concat(diffsFromOlder.values().stream(), diffsFromNewer);
+	}
+
 	@Override
 	public String getAttributeName(FieldSpecification<?, ?> field) {
 		var jField = field.getJavaField();
-		if (jField.isAnnotationPresent(OWLDataProperty.class)) {
-			return jField.getAnnotation(OWLDataProperty.class).iri();
+		if (field instanceof Attribute && jField.isAnnotationPresent(OWLDataProperty.class)) {
+			return ((Attribute<?, ?>) field).getIRI().toString();
+		} else if (field instanceof TypesSpecification) {
+			return RDF.TYPE;
+		} else if (field instanceof PropertiesSpecification) {
+			return null;
 		} else {
 			// TODO: at least log
 			return jField.getName();
