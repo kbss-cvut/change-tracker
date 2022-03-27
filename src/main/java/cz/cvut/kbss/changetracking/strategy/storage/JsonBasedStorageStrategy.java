@@ -3,6 +3,7 @@ package cz.cvut.kbss.changetracking.strategy.storage;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.cvut.kbss.changetracking.exception.JsonException;
+import cz.cvut.kbss.changetracking.exception.UnsupportedAttributeTypeException;
 import cz.cvut.kbss.changetracking.model.ChangeVector;
 import cz.cvut.kbss.changetracking.model.JsonChangeVector;
 import org.jetbrains.annotations.Nullable;
@@ -74,9 +75,10 @@ public abstract class JsonBasedStorageStrategy implements StorageStrategy {
 	 */
 	String convertValueToJson(Object object) {
 		try {
-			if (object instanceof String || object instanceof Number || object instanceof Boolean || object == null) {
+			if (supportedAttributeClasses.stream().anyMatch(clazz -> clazz.isInstance(object))) {
 				return objectMapper.writeValueAsString(object);
-			} else return objectMapper.writeValueAsString(object.toString());
+			}
+			throw new UnsupportedAttributeTypeException(object.getClass().getCanonicalName());
 		} catch (JsonProcessingException e) {
 			throw new JsonException("convert value to", e);
 		}
@@ -100,6 +102,6 @@ public abstract class JsonBasedStorageStrategy implements StorageStrategy {
 			throw new JsonException("convert value of type '" + type + "' from", e);
 		}
 
-		throw new JsonException("convert value of unsupported type '" + type + "' from");
+		throw new UnsupportedAttributeTypeException(type);
 	}
 }
