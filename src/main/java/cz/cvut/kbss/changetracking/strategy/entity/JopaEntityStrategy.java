@@ -52,15 +52,10 @@ public class JopaEntityStrategy implements EntityStrategy<FieldSpecification<?, 
 				.orElseThrow(() -> new ObjectsNotCompatibleException(older, newer));
 
 			checkClassSupported(clazz);
-			// TODO: same logic as in getObjectType but with a class instead of an instance - prevent using ugly hacks like
-			//  the following - so extracting would make some sense
-			//typeName = getObjectType(clazz.getConstructors()[0].newInstance(null));
-			typeName = clazz.getAnnotation(OWLClass.class).iri();
+			typeName = getTypeName(clazz);
 			// TODO: @MappedSuperclass
 
-			// TODO: refactor getAttributes to work with classes - analogically to the above
-			//noinspection unchecked
-			fieldSpecs = (Collection<FieldSpecification<?, ?>>) metamodel.entity(clazz).getFieldSpecifications();
+			fieldSpecs = getAttributes(clazz);
 		}
 
 
@@ -85,6 +80,11 @@ public class JopaEntityStrategy implements EntityStrategy<FieldSpecification<?, 
 	}
 
 	@Override
+	public String getTypeName(Class<?> clazz) {
+		return clazz.getAnnotation(OWLClass.class).iri();
+	}
+
+	@Override
 	public void checkClassSupported(@NotNull Class<?> clazz) {
 		if (!clazz.isAnnotationPresent(Audited.class) || !clazz.isAnnotationPresent(OWLClass.class))
 			throw new ClassNotAuditedException(clazz);
@@ -92,8 +92,8 @@ public class JopaEntityStrategy implements EntityStrategy<FieldSpecification<?, 
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public Collection<FieldSpecification<?, ?>> getAttributes(Object entity) {
-		return (Collection<FieldSpecification<?, ?>>) metamodel.entity(entity.getClass()).getFieldSpecifications();
+	public Collection<FieldSpecification<?, ?>> getAttributes(Class<?> clazz) {
+		return (Collection<FieldSpecification<?, ?>>) metamodel.entity(clazz).getFieldSpecifications();
 	}
 
 	protected Stream<ChangeVector> createVectorsForUnmappedProperties(
@@ -168,11 +168,6 @@ public class JopaEntityStrategy implements EntityStrategy<FieldSpecification<?, 
 		} catch (IllegalAccessException e) {
 			throw new AccessDeniedException(e);
 		}
-	}
-
-	@Override
-	public String getObjectType(Object o) {
-		return o.getClass().getAnnotation(OWLClass.class).iri();
 	}
 
 	@Override

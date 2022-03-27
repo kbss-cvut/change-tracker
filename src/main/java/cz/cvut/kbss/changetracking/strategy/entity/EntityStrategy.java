@@ -41,7 +41,16 @@ public interface EntityStrategy<TField> {
    * @param o The object.
    * @return An application-unique string representation of the object's type.
    */
-  String getObjectType(Object o);
+	default String getObjectType(Object o) {
+		return getTypeName(o.getClass());
+	}
+
+	/**
+	 * Get an application-unique string representation of the class (type). This MAY be the name of the class.
+	 *
+	 * @see EntityStrategy#getObjectType(Object)
+	 */
+	String getTypeName(Class<?> clazz);
 
   /**
    * Get an identifier of the object which is unique within its type.
@@ -52,15 +61,27 @@ public interface EntityStrategy<TField> {
    */
   String getObjectId(Object o);
 
-  /**
+	/**
+	 * Get the attributes/fields of the supplied entity type.
+	 *
+	 * @param clazz The entity type whose attributes to get.
+	 * @return An iterable collection of the attributes.
+	 */
+  Collection<TField> getAttributes(Class<?> clazz);
+
+	/**
    * Get the attributes/fields of the supplied entity's type.
+	 *
    * @param object The entity whose attributes to get.
    * @return An iterable collection of the attributes.
    */
-  Collection<TField> getAttributes(Object object);
+  default Collection<TField> getAttributes(Object object) {
+		return getAttributes(object.getClass());
+	}
 
   /**
    * Get the name of an attribute/field.
+	 *
    * @param field The attribute/field to get the name of.
    * @return The name of the attribute/field.
    */
