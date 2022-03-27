@@ -12,8 +12,8 @@ public class House extends Home {
 	@OWLDataProperty(iri = TestIRIs.PROPERTY_FLOORS)
 	private Integer floors;
 
-	public House(String uri, String name, Integer floors) {
-		super(uri, name);
+	public House(String uri, String city, Integer floors) {
+		super(uri, city);
 		this.floors = floors;
 	}
 

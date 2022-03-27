@@ -144,7 +144,87 @@ public class JopaEntityStrategyTest {
 	}
 
 	@Test
-	void getChangeVectors_twoDifferentClasses_throwsObjectsNotCompatibleException() {
+	void getChangeVectors_twoDifferentSubclassesEqualInSharedAttribute_returnsEmpty() {
+		var house = new House(homeInstanceIri, "Sydney", 23);
+		var apartment = new Apartment(homeInstanceIri, "Sydney", true);
+
+		var vectors = strategy.getChangeVectors(house, apartment, true);
+		assertTrue(vectors.isEmpty());
+	}
+
+	@Test
+	void getChangeVectors_twoDifferentSubclassesDifferingInSharedAttribute_returnsOneVector() {
+		var house = new House(homeInstanceIri, "Sydney", 23);
+		var apartment = new Apartment(homeInstanceIri, "Los Angeles", true);
+
+		var vectors = strategy.getChangeVectors(house, apartment, true);
+		assertEquals(1, vectors.size());
+		vectorAssert(
+			vectors,
+			TestIRIs.CLASS_HOME,
+			homeInstanceIri,
+			TestIRIs.PROPERTY_CITY,
+			house.getCity()
+		);
+	}
+
+	@Test
+	void getChangeVectors_superAndSubclassDifferingInSuperAttribute_returnsOneVector() {
+		var ap = new Apartment(homeInstanceIri, "Sydney", true);
+		var loft = new Loft(homeInstanceIri, "Sydney", false, 6);
+
+		var vectors = strategy.getChangeVectors(ap, loft, true);
+		assertEquals(1, vectors.size());
+		vectorAssert(
+			vectors,
+			TestIRIs.CLASS_APARTMENT,
+			homeInstanceIri,
+			TestIRIs.PROPERTY_HAS_BALCONY,
+			ap.getHasBalcony()
+		);
+	}
+
+	@Test
+	void getChangeVectors_superAndSubclassDifferingInEvenHigherAncestorsAttribute_returnsOneVector() {
+		var ap = new Apartment(homeInstanceIri, "Sydney", true);
+		var loft = new Loft(homeInstanceIri, "Los Angeles", true, 6);
+
+		var vectors = strategy.getChangeVectors(ap, loft, true);
+		assertEquals(1, vectors.size());
+		vectorAssert(
+			vectors,
+			TestIRIs.CLASS_APARTMENT,
+			homeInstanceIri,
+			TestIRIs.PROPERTY_CITY,
+			ap.getCity()
+		);
+	}
+
+	@Test
+	void getChangeVectors_superAndSubclassDifferingInBothSupersAndEvenHigherAncestorsAttribute_returnsOneVector() {
+		var ap = new Apartment(homeInstanceIri, "Sydney", true);
+		var loft = new Loft(homeInstanceIri, "Los Angeles", false, 6);
+
+		var vectors = strategy.getChangeVectors(ap, loft, true);
+		assertEquals(2, vectors.size());
+		vectorAssert(
+			vectors,
+			TestIRIs.CLASS_APARTMENT,
+			homeInstanceIri,
+			TestIRIs.PROPERTY_CITY,
+			ap.getCity()
+		);
+		vectorAssert(
+			vectors,
+			TestIRIs.CLASS_APARTMENT,
+			homeInstanceIri,
+			TestIRIs.PROPERTY_HAS_BALCONY,
+			ap.getHasBalcony()
+		);
+	}
+
+	@Test
+	void getChangeVectors_twoDifferentClassesWithNoCommonAncestor_throwsObjectsNotCompatibleException() {
 		var home = new Home(homeInstanceIri, "Sydney");
 		var student = new UndergraduateStudent(homeInstanceIri, "James", "LaFleur");
 

@@ -53,7 +53,6 @@ public class JopaEntityStrategy implements EntityStrategy<FieldSpecification<?, 
 
 			checkClassSupported(clazz);
 			typeName = getTypeName(clazz);
-			// TODO: @MappedSuperclass
 
 			fieldSpecs = getAttributes(clazz);
 		}
