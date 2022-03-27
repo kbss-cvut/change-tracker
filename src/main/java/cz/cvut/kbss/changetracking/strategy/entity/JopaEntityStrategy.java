@@ -70,12 +70,12 @@ public class JopaEntityStrategy implements EntityStrategy<FieldSpecification<?, 
 				var val1 = getAttributeValue(attr, older);
 				var val2 = getAttributeValue(attr, newer);
 				if (!Objects.equals(val1, val2)) {
-					final var fieldName = getAttributeName(attr);
 					if (attr instanceof Attribute | attr instanceof TypesSpecification) {
-						return Stream.of(new ChangeVector(typeName, id1, fieldName, val1));
+						return Stream.of(new ChangeVector(typeName, id1, getAttributeName(attr), val1));
 					} else if (attr instanceof PropertiesSpecification) {
 						return createVectorsForUnmappedProperties(typeName, id1, (Map<?, ?>) val1, (Map<?, ?>) val2);
 					} else {
+						// can still be a QueryAttribute or Identifier - either way, we're not dealing with it here
 						return null;
 					}
 				} else return null;
@@ -146,7 +146,7 @@ public class JopaEntityStrategy implements EntityStrategy<FieldSpecification<?, 
 			return ((Attribute<?, ?>) field).getIRI().toString();
 		} else if (field instanceof TypesSpecification) {
 			return RDF.TYPE;
-		} else if (field instanceof PropertiesSpecification) {
+		} else if (field instanceof PropertiesSpecification | field instanceof Identifier | field instanceof QueryAttribute) {
 			return null;
 		} else {
 			// TODO: at least log
