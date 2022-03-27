@@ -11,4 +11,7 @@ public class TestIRIs {
 	public static final String PROPERTY_FLOORS = "http://127.0.0.1/owl#floors";
 	public static final String PROPERTY_GOOD_GUY = "http://127.0.0.1/owl#isGoodGuy";
 	public static final String PROPERTY_LAST_NAME = "http://uob.iodt.ibm.com/univ-bench-dl.owl#lastName";
+
+	public static final String TYPE_MAN = "http://127.0.0.1/types#Man";
+	public static final String TYPE_STUDENT = "http://127.0.0.1/types#Student";
 }

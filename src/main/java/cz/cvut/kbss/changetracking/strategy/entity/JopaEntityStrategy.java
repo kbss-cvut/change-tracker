@@ -71,11 +71,8 @@ public class JopaEntityStrategy implements EntityStrategy<FieldSpecification<?, 
 				var val2 = getAttributeValue(attr, newer);
 				if (!Objects.equals(val1, val2)) {
 					final var fieldName = getAttributeName(attr);
-					if (attr instanceof Attribute) {
+					if (attr instanceof Attribute | attr instanceof TypesSpecification) {
 						return Stream.of(new ChangeVector(typeName, id1, fieldName, val1));
-					} else if (attr instanceof TypesSpecification) {
-						return Stream.empty();
-						// TODO
 					} else if (attr instanceof PropertiesSpecification) {
 						return createVectorsForUnmappedProperties(typeName, id1, (Map<?, ?>) val1, (Map<?, ?>) val2);
 					} else {

@@ -15,6 +15,7 @@ import cz.cvut.kbss.jopa.model.annotations.OWLClass;
 import cz.cvut.kbss.jopa.model.annotations.OWLDataProperty;
 import cz.cvut.kbss.jopa.model.metamodel.FieldSpecification;
 import cz.cvut.kbss.jopa.utils.Configuration;
+import cz.cvut.kbss.jopa.vocabulary.RDF;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -293,6 +294,47 @@ public class JopaEntityStrategyTest {
 		var home2 = new Home(homeInstanceIri + "2", "Sydney");
 
 		assertDoesNotThrow(() -> strategy.getChangeVectors(home1, home2, false));
+	}
+
+	@Test
+	void getChangeVectors_addedType_returnsVectorWithOldTypesSet() {
+		var types1 = new HashSet<>(Collections.singleton(TestIRIs.TYPE_MAN));
+		var student1 = new TypedStudent(studentInstanceIri, types1);
+
+		var types2 = new HashSet<>(types1);
+		types2.add(TestIRIs.TYPE_STUDENT);
+		var student2 = new TypedStudent(studentInstanceIri, types2);
+
+		var vecs = strategy.getChangeVectors(student1, student2, true);
+
+		assertEquals(1, vecs.size());
+		vectorAssert(vecs, TestIRIs.CLASS_STUDENT, studentInstanceIri, RDF.TYPE, types1);
+	}
+
+	@Test
+	void getChangeVectors_removedType_returnsVectorWithTheOldTypesSet() {
+		var types1 = new HashSet<>(List.of(TestIRIs.TYPE_MAN, TestIRIs.TYPE_STUDENT));
+		var student1 = new TypedStudent(studentInstanceIri, types1);
+
+		var types2 = new HashSet<>(types1);
+		types2.remove(TestIRIs.TYPE_STUDENT);
+		var student2 = new TypedStudent(studentInstanceIri, types2);
+
+		var vecs = strategy.getChangeVectors(student1, student2, true);
+
+		assertEquals(1, vecs.size());
+		vectorAssert(vecs, TestIRIs.CLASS_STUDENT, studentInstanceIri, RDF.TYPE, types1);
+	}
+
+	@Test
+	void getChangeVectors_unchangedTypes_returnsEmptyVectorCollection() {
+		var types = new HashSet<>(List.of(TestIRIs.TYPE_MAN, TestIRIs.TYPE_STUDENT));
+		var student1 = new TypedStudent(studentInstanceIri, types);
+		var student2 = new TypedStudent(studentInstanceIri, types);
+
+		var vecs = strategy.getChangeVectors(student1, student2, true);
+
+		assertTrue(vecs.isEmpty());
 	}
 
 	// FIXME: this may be semantically wrong
