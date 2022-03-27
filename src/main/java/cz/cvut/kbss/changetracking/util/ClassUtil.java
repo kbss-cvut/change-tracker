@@ -1,7 +1,5 @@
 package cz.cvut.kbss.changetracking.util;
 
-import org.jetbrains.annotations.Nullable;
-
 import java.util.*;
 
 /**
@@ -35,16 +33,14 @@ public class ClassUtil {
 	}
 
 
-	// TODO: Optional<>
-	@Nullable
-	public static Class<?> getCommonSuperclass(Class<?> class1, Class<?> class2) {
+	public static Optional<Class<?>> getCommonSuperclass(Class<?> class1, Class<?> class2) {
 		var x = lowestClasses(commonSuperclasses(class1, class2));
-		if (x.size() != 1) return null; // something is wrong
+		if (x.size() != 1) return Optional.empty(); // something is wrong
 
 		var superclass = x.get(0);
-		if (Object.class.equals(superclass)) return null;
+		if (Object.class.equals(superclass)) return Optional.empty();
 
-		return superclass;
+		return Optional.of(superclass);
 	}
 
 	private static List<Class<?>> lowestClasses(Collection<Class<?>> classes) {

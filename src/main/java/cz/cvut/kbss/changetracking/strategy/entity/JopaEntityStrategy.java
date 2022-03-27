@@ -47,9 +47,9 @@ public class JopaEntityStrategy implements EntityStrategy<FieldSpecification<?, 
 			fieldSpecs = getAttributes(older);
 		} else {
 			// get common ancestor
-			var clazz = ClassUtil.getCommonSuperclass(older.getClass(), newer.getClass());
-			if (clazz == null)
-				throw new ObjectsNotCompatibleException(older, newer);
+			var clazz = ClassUtil
+				.getCommonSuperclass(older.getClass(), newer.getClass())
+				.orElseThrow(() -> new ObjectsNotCompatibleException(older, newer));
 
 			checkClassSupported(clazz);
 			// TODO: same logic as in getObjectType but with a class instead of an instance - prevent using ugly hacks like
