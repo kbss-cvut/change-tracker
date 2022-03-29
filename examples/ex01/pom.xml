@@ -15,6 +15,14 @@
     <version>1.0-SNAPSHOT</version>
     <name>changetracking-ex01</name>
 
+    <properties>
+        <version.java>11</version.java>
+        <version.jopa>0.17.2</version.jopa>
+
+        <maven.compiler.source>${version.java}</maven.compiler.source>
+        <maven.compiler.target>${version.java}</maven.compiler.target>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.h2database</groupId>
@@ -25,10 +33,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-				<dependency>
-					<groupId>org.springframework.boot</groupId>
-					<artifactId>spring-boot-starter-data-jpa</artifactId>
-				</dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
         <dependency>
             <groupId>cz.cvut.kbss</groupId>
             <artifactId>changetracking</artifactId>
@@ -45,26 +53,20 @@
 					<artifactId>mariadb-java-client</artifactId>
 					<version>3.0.2-rc</version>
 				</dependency>-->
-      	<dependency>
+        <dependency>
             <groupId>cz.cvut.kbss.jopa</groupId>
             <artifactId>jopa-impl</artifactId>
-            <version>0.17.2</version>
+            <version>${version.jopa}</version>
         </dependency>
         <dependency>
             <groupId>cz.cvut.kbss.jopa</groupId>
             <artifactId>ontodriver-api</artifactId>
-            <version>0.17.2</version>
+            <version>${version.jopa}</version>
         </dependency>
         <dependency>
             <groupId>cz.cvut.kbss.jopa</groupId>
             <artifactId>ontodriver-sesame</artifactId>
-            <version>0.17.2</version>
+            <version>${version.jopa}</version>
         </dependency>
-		</dependencies>
-
-		<properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
-    </properties>
-
+    </dependencies>
 </project>
