@@ -19,7 +19,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class JopaEntityStrategy implements EntityStrategy<FieldSpecification<?, ?>> {
+public class JopaEntityStrategy extends BaseEntityStrategy<FieldSpecification<?, ?>> {
 	private final Metamodel metamodel;
 
 	public JopaEntityStrategy(Metamodel metamodel) {

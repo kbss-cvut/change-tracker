@@ -29,7 +29,7 @@ public class JopaEntityStrategyTest {
 	static final String studentInstanceIri = "http://www.oni.unsc.org/spartanII/John117";
 	static final String homeInstanceIri = "http://127.0.0.1/instance/SydneyHouse";
 	static final String superheroInstanceIri = "http://127.0.0.1/instance/Jacob";
-	static EntityStrategy<FieldSpecification<?, ?>> strategy;
+	static BaseEntityStrategy<FieldSpecification<?, ?>> strategy;
 
 	final ObjectMapper mapper = new ObjectMapper();
 
