@@ -10,9 +10,9 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class JpaStorageStrategyTest {
+class JsonBasedStorageStrategyTest {
 	// TODO: implement tests using Spring Boot
-	JpaStorageStrategy strategy = new JpaStorageStrategy(null);
+	JsonBasedStorageStrategy strategy = new TestJsonBasedStorageStrategyImpl();
 
 	static Stream<Arguments> providePrimitiveArgumentsForJsonConversion() {
 		return Stream.of(
