@@ -26,7 +26,7 @@ public class JpaStorageStrategy extends JsonBasedStorageStrategy {
 	}
 
 	@Override
-	public void save(ChangeVector... rawVectors) {
+	public void save(ChangeVector<?>... rawVectors) {
 		Arrays
 			.stream(rawVectors)
 			.map(vector -> new JsonChangeVector(
@@ -38,7 +38,7 @@ public class JpaStorageStrategy extends JsonBasedStorageStrategy {
 	}
 
 	@Override
-	public List<ChangeVector> getAllForObject(String objectType, String objectId) {
+	public List<ChangeVector<?>> getAllForObject(String objectType, String objectId) {
 		var cb = em.getCriteriaBuilder();
 		var cq = cb.createQuery(JsonChangeVector.class);
 		var root = cq.from(JsonChangeVector.class);
@@ -55,12 +55,12 @@ public class JpaStorageStrategy extends JsonBasedStorageStrategy {
 	}
 
 	@Override
-	public List<ChangeVector> getChangesSince(Instant timestamp) {
+	public List<ChangeVector<?>> getChangesSince(Instant timestamp) {
 		return getChangesOfTypeSince(timestamp, null);
 	}
 
 	@Override
-	public List<ChangeVector> getChangesOfTypeSince(Instant timestamp, @Nullable String objectType) {
+	public List<ChangeVector<?>> getChangesOfTypeSince(Instant timestamp, @Nullable String objectType) {
 		var cb = em.getCriteriaBuilder();
 		var cq = cb.createQuery(JsonChangeVector.class);
 		var root = cq.from(JsonChangeVector.class);

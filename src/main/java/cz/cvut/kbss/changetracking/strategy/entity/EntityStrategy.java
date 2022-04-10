@@ -26,6 +26,6 @@ public interface EntityStrategy<TField> {
 	 * @throws cz.cvut.kbss.changetracking.exception.IdNotMatchingException  When the objects' IDs don't match and {@code
 	 *                                                                       requireSameId} is {@code true}.
 	 */
-	<T> Collection<ChangeVector> getChangeVectors(T older, T newer, boolean requireSameId);
+	<T> Collection<ChangeVector<?>> getChangeVectors(T older, T newer, boolean requireSameId);
 
 }

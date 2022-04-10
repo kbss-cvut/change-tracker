@@ -27,7 +27,8 @@ public class JopaEntityStrategy extends BaseEntityStrategy<FieldSpecification<?,
 	}
 
 	@Override
-	public final <TEntity> Collection<ChangeVector> getChangeVectors(TEntity older, TEntity newer, boolean requireSameId) {
+	public final <TEntity> Collection<ChangeVector<?>> getChangeVectors(TEntity older, TEntity newer,
+		boolean requireSameId) {
 		var type1 = getObjectType(older);
 		var type2 = getObjectType(newer);
 		var id1 = getObjectId(older);
@@ -65,7 +66,7 @@ public class JopaEntityStrategy extends BaseEntityStrategy<FieldSpecification<?,
 				var val2 = getAttributeValue(attr, newer);
 				if (!Objects.equals(val1, val2)) {
 					if (attr instanceof Attribute | attr instanceof TypesSpecification) {
-						return Stream.of(new ChangeVector(typeName, id1, getAttributeName(attr), val1));
+						return Stream.of(new ChangeVector<>(typeName, id1, getAttributeName(attr), val1));
 					} else if (attr instanceof PropertiesSpecification) {
 						return createVectorsForUnmappedProperties(typeName, id1, (Map<?, ?>) val1, (Map<?, ?>) val2);
 					} else {
@@ -95,7 +96,7 @@ public class JopaEntityStrategy extends BaseEntityStrategy<FieldSpecification<?,
 		return (Collection<FieldSpecification<?, ?>>) metamodel.entity(clazz).getFieldSpecifications();
 	}
 
-	protected Stream<ChangeVector> createVectorsForUnmappedProperties(
+	protected Stream<ChangeVector<?>> createVectorsForUnmappedProperties(
 		String objectType, String objectId,
 		Map<?, ?> older,
 		Map<?, ?> newer
@@ -111,13 +112,13 @@ public class JopaEntityStrategy extends BaseEntityStrategy<FieldSpecification<?,
 				return newer
 					.keySet()
 					.stream()
-					.map(k -> new ChangeVector(objectType, objectId, k.toString(), null));
+					.map(k -> new ChangeVector<>(objectType, objectId, k.toString(), null));
 			}
 		} else if (newerEmpty) {
 			return older
 				.entrySet()
 				.stream()
-				.map(entry -> new ChangeVector(objectType, objectId, entry.getKey().toString(), entry.getValue()));
+				.map(entry -> new ChangeVector<>(objectType, objectId, entry.getKey().toString(), entry.getValue()));
 		}
 
 		var diffsFromOlder = older
@@ -126,14 +127,14 @@ public class JopaEntityStrategy extends BaseEntityStrategy<FieldSpecification<?,
 			.filter(entry -> !Objects.equals(older.get(entry.getValue()), newer.get(entry.getKey())))
 			.collect(Collectors.toMap(
 				Map.Entry::getKey,
-				entry -> new ChangeVector(objectType, objectId, entry.getKey().toString(), entry.getValue())
+				entry -> new ChangeVector<>(objectType, objectId, entry.getKey().toString(), entry.getValue())
 			));
 
 		var diffsFromNewer = newer
 			.keySet()
 			.stream()
 			.filter(k -> !diffsFromOlder.containsKey(k))
-			.map(o -> new ChangeVector(objectType, objectId, o.toString(), null));
+			.map(o -> new ChangeVector<>(objectType, objectId, o.toString(), null));
 
 		return Stream.concat(diffsFromOlder.values().stream(), diffsFromNewer);
 	}

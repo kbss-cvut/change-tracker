@@ -42,8 +42,8 @@ public class JopaEntityStrategyTest {
 		strategy = new JopaEntityStrategy(metamodel);
 	}
 
-	static ChangeVector getVector(Collection<ChangeVector> vectors, int index) {
-		return vectors.toArray(ChangeVector[]::new)[index];
+	static ChangeVector<?> getVector(Collection<ChangeVector<?>> vectors, int index) {
+		return vectors.toArray(ChangeVector<?>[]::new)[index];
 	}
 
 	/**
@@ -51,8 +51,8 @@ public class JopaEntityStrategyTest {
 	 * This method cannot directly access vectors in the collection by converting it into an array and then using an
 	 * index because the order is unstable (due to underlying implementation in JOPA).
 	 */
-	static ChangeVector vectorAssert(
-		Collection<ChangeVector> vectors,
+	static ChangeVector<?> vectorAssert(
+		Collection<ChangeVector<?>> vectors,
 		String objectType,
 		String objectId,
 		String attributeName,

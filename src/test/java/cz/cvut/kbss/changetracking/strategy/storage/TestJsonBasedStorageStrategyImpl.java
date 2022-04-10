@@ -11,21 +11,21 @@ import java.util.List;
  */
 public class TestJsonBasedStorageStrategyImpl extends JsonBasedStorageStrategy {
 	@Override
-	public void save(ChangeVector... vectors) {
+	public void save(ChangeVector<?>... vectors) {
 	}
 
 	@Override
-	public List<ChangeVector> getAllForObject(String objectType, String objectId) {
+	public List<ChangeVector<?>> getAllForObject(String objectType, String objectId) {
 		return new ArrayList<>();
 	}
 
 	@Override
-	public List<ChangeVector> getChangesSince(Instant timestamp) {
+	public List<ChangeVector<?>> getChangesSince(Instant timestamp) {
 		return new ArrayList<>();
 	}
 
 	@Override
-	public List<ChangeVector> getChangesOfTypeSince(Instant timestamp, String objectType) {
+	public List<ChangeVector<?>> getChangesOfTypeSince(Instant timestamp, String objectType) {
 		return new ArrayList<>();
 	}
 }

@@ -2,8 +2,7 @@ package cz.cvut.kbss.changetracking.model;
 
 import org.jetbrains.annotations.NotNull;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * {@link JsonChangeVector} is the change vector entity class, representing a single change to an audited object. The
@@ -14,11 +13,15 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "change_vector")
-public class JsonChangeVector extends AbstractChangeVector<String> {
-	private String attributeType;
+public class JsonChangeVector extends ChangeVector<String> {
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	protected Long id;
+
+	protected String attributeType;
 
 	public JsonChangeVector(
-		@NotNull ChangeVector vector,
+		@NotNull ChangeVector<?> vector,
 		@NotNull Class<?> attributeClass,
 		@NotNull String previousValueJson
 	) {
@@ -35,7 +38,24 @@ public class JsonChangeVector extends AbstractChangeVector<String> {
 	public JsonChangeVector() {
 	}
 
+	public Long getId() {
+		return id;
+	}
+
 	public String getAttributeType() {
 		return attributeType;
+	}
+
+	@Override
+	public String toString() {
+		return "JsonChangeVector{" +
+			"timestamp=" + timestamp +
+			", previousValue=" + previousValue +
+			", attributeName='" + attributeName + '\'' +
+			", objectType='" + objectType + '\'' +
+			", objectId='" + objectId + '\'' +
+			", id=" + id +
+			", attributeType='" + attributeType + '\'' +
+			'}';
 	}
 }

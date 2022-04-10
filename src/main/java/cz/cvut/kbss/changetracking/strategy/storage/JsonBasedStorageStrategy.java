@@ -6,9 +6,7 @@ import cz.cvut.kbss.changetracking.exception.JsonException;
 import cz.cvut.kbss.changetracking.exception.UnsupportedAttributeTypeException;
 import cz.cvut.kbss.changetracking.model.ChangeVector;
 import cz.cvut.kbss.changetracking.model.JsonChangeVector;
-import org.jetbrains.annotations.Nullable;
 
-import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -39,16 +37,16 @@ public abstract class JsonBasedStorageStrategy implements StorageStrategy {
 	private final ObjectMapper objectMapper = new ObjectMapper();
 
 	/**
-	 * Convert vectors from {@link JsonChangeVector} to {@link ChangeVector}, i.e. convert their previousValues from JSON
-	 * back to their original types.
+	 * Convert vectors from {@link JsonChangeVector} to {@link ChangeVector}, i.e. convert their previousValues
+	 * from JSON back to their original types.
 	 *
 	 * @param jsonList The list of vectors to convert.
 	 * @return Vectors with proper values.
 	 * @throws cz.cvut.kbss.changetracking.exception.JsonException Based on
 	 * {@link JpaStorageStrategy#convertValueFromJson}.
 	 */
-	List<ChangeVector> convertVectorsFromJson(List<JsonChangeVector> jsonList) {
-		return jsonList.stream().map(jsonVector -> new ChangeVector(
+	List<ChangeVector<?>> convertVectorsFromJson(List<JsonChangeVector> jsonList) {
+		return jsonList.stream().map(jsonVector -> new ChangeVector<>(
 			jsonVector,
 			convertValueFromJson(jsonVector.getAttributeType(), jsonVector.getPreviousValue())
 		)).collect(Collectors.toList());

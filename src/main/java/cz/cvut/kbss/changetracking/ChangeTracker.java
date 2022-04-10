@@ -35,7 +35,7 @@ public class ChangeTracker {
 	 * {@code requireSameId} defaults to {@code true}.
 	 * @see ChangeTracker#compare(Object, Object, boolean)
 	 */
-	public Collection<ChangeVector> compare(Object older, Object newer) {
+	public Collection<ChangeVector<?>> compare(Object older, Object newer) {
 		return compare(older, newer, true);
 	}
 
@@ -54,7 +54,7 @@ public class ChangeTracker {
 	 *																																				{@code requireSameId} is {@code true}.
 	 */
 	@SuppressWarnings("unchecked")
-	public Collection<ChangeVector> compare(Object older, Object newer, boolean requireSameId) {
+	public Collection<ChangeVector<?>> compare(Object older, Object newer, boolean requireSameId) {
 		Objects.requireNonNull(older);
 		Objects.requireNonNull(newer);
 
@@ -70,7 +70,7 @@ public class ChangeTracker {
 	 */
 	public <T> void compareAndSave(T older, T newer) {
 		var vectors = compare(older, newer);
-		storageStrategy.save(vectors.toArray(ChangeVector[]::new));
+		storageStrategy.save(vectors.toArray(ChangeVector<?>[]::new));
 	}
 
 	/**
@@ -78,7 +78,7 @@ public class ChangeTracker {
 	 * <p>
 	 * This method calls {@link StorageStrategy#getAllForObject(String, String)}.
 	 */
-	public List<ChangeVector> getAllForObject(String objectType, String objectId) {
+	public List<ChangeVector<?>> getAllForObject(String objectType, String objectId) {
 		return storageStrategy.getAllForObject(objectType, objectId);
 	}
 
@@ -87,7 +87,7 @@ public class ChangeTracker {
 	 * <p>
 	 * This method calls {@link StorageStrategy#getChangesSince(Instant)}.
 	 */
-	public List<ChangeVector> getChangesSince(Instant timestamp) {
+	public List<ChangeVector<?>> getChangesSince(Instant timestamp) {
 		return storageStrategy.getChangesSince(timestamp);
 	}
 
@@ -97,7 +97,7 @@ public class ChangeTracker {
 	 * This method calls {@link StorageStrategy#getChangesOfTypeSince(Instant, String)} and converts the attributes'
 	 * values to the original types.
 	 */
-	public List<ChangeVector> getChangesOfTypeSince(Instant timestamp, String objectType) {
+	public List<ChangeVector<?>> getChangesOfTypeSince(Instant timestamp, String objectType) {
 		return storageStrategy.getChangesOfTypeSince(timestamp, objectType);
 	}
 }
