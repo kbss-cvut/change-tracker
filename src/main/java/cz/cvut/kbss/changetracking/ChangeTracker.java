@@ -12,17 +12,14 @@ import java.util.Objects;
 
 public class ChangeTracker {
 
-	@SuppressWarnings("rawtypes")
 	private EntityStrategy entityStrategy;
 	private StorageStrategy storageStrategy;
 
-	@SuppressWarnings("rawtypes")
 	public ChangeTracker(EntityStrategy entityStrategy, StorageStrategy storageStrategy) {
 		this.entityStrategy = entityStrategy;
 		this.storageStrategy = storageStrategy;
 	}
 
-	@SuppressWarnings("rawtypes")
 	public void setClassStrategy(EntityStrategy entityStrategy) {
 		this.entityStrategy = entityStrategy;
 	}
@@ -37,7 +34,6 @@ public class ChangeTracker {
 	 *
 	 * @see #compare(Object, Object)
 	 */
-	@SuppressWarnings("unchecked")
 	public Collection<ChangeVector<?>> compareIgnoringIds(Object older, Object newer) {
 		Objects.requireNonNull(older);
 		Objects.requireNonNull(newer);
@@ -57,7 +53,6 @@ public class ChangeTracker {
 	 *                                                                        EntityStrategy}.
 	 * @throws cz.cvut.kbss.changetracking.exception.IdNotMatchingException   When the objects' IDs don't match.
 	 */
-	@SuppressWarnings("unchecked")
 	public Collection<ChangeVector<?>> compare(Object older, Object newer) {
 		Objects.requireNonNull(older);
 		Objects.requireNonNull(newer);

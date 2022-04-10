@@ -9,7 +9,7 @@ import java.util.Collection;
  * @param <TField> Generic high-level type of attributes/fields used in the entity. If an implementation of this
  *                 strategy is not to use a metamodel, {@link java.lang.reflect.Field} should be used.
  */
-public abstract class BaseEntityStrategy<TField> implements EntityStrategy<TField> {
+public abstract class BaseEntityStrategy<TField> implements EntityStrategy {
 	/**
 	 * Check if a class is supported for auditing and if not, throw
 	 * {@link cz.cvut.kbss.changetracking.exception.ClassNotAuditedException}.

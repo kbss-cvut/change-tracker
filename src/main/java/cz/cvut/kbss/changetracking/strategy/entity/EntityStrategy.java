@@ -8,11 +8,8 @@ import java.util.Collection;
  * Entity class management strategy.
  * <p>
  * TODO: rename (EntityComparisonStrategy?)
- *
- * @param <TField> Generic high-level type of attributes/fields used in the entity. If an implementation of this
- *                 strategy is not to use a metamodel, {@link java.lang.reflect.Field} should be used.
  */
-public interface EntityStrategy<TField> {
+public interface EntityStrategy {
 
 	/**
 	 * Create change vectors between two revisions of an object. The revisions have to be mutually compatible, i.e.
