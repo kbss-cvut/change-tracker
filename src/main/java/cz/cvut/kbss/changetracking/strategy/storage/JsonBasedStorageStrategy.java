@@ -38,18 +38,6 @@ public abstract class JsonBasedStorageStrategy implements StorageStrategy {
 	));
 	private final ObjectMapper objectMapper = new ObjectMapper();
 
-	@Override
-	public abstract void save(ChangeVector... rawVectors);
-
-	@Override
-	public abstract List<ChangeVector> getAllForObject(String objectType, String objectId);
-
-	@Override
-	public abstract List<ChangeVector> getChangesSince(Instant timestamp);
-
-	@Override
-	public abstract List<ChangeVector> getChangesOfTypeSince(Instant timestamp, @Nullable String objectType);
-
 	/**
 	 * Convert vectors from {@link JsonChangeVector} to {@link ChangeVector}, i.e. convert their previousValues from JSON
 	 * back to their original types.
