@@ -29,4 +29,14 @@ class ClassUtilTest {
 	void getCommonSuperclass_houseAndUndergradStudent_returnsEmptyOptional() {
 		assertTrue(ClassUtil.getCommonSuperclass(House.class, UndergraduateStudent.class).isEmpty());
 	}
+
+	@Test
+	void getArrayClass_string_returnsStringArrayClass() {
+		assertEquals(String[].class, ClassUtil.getArrayClass(String.class));
+	}
+
+	@Test
+	void getArrayClass_stringArray_returnsStringArrayArrayClass() {
+		assertEquals(String[][].class, ClassUtil.getArrayClass(String[].class));
+	}
 }

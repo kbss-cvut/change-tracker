@@ -6,11 +6,9 @@ import cz.cvut.kbss.changetracking.exception.JsonException;
 import cz.cvut.kbss.changetracking.exception.UnsupportedAttributeTypeException;
 import cz.cvut.kbss.changetracking.model.ChangeVector;
 import cz.cvut.kbss.changetracking.model.JsonChangeVector;
+import cz.cvut.kbss.changetracking.util.ClassUtil;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -32,9 +30,10 @@ public abstract class JsonBasedStorageStrategy implements StorageStrategy {
 		Integer.class,
 		int.class,
 		Boolean.class,
-		boolean.class
+		boolean.class,
+		Collection.class // TODO: implement without being naive
 	));
-	private final ObjectMapper objectMapper = new ObjectMapper();
+	protected final ObjectMapper objectMapper = new ObjectMapper();
 
 	/**
 	 * Convert vectors from {@link JsonChangeVector} to {@link ChangeVector}, i.e. convert their previousValues
@@ -81,8 +80,15 @@ public abstract class JsonBasedStorageStrategy implements StorageStrategy {
 	Object convertValueFromJson(String type, String json) {
 		try {
 			for (var clazz : supportedAttributeClasses) {
-				if (Objects.equals(type, clazz.getCanonicalName()))
+				var className = clazz.getCanonicalName();
+				if (Objects.equals(type, className)) {
 					return objectMapper.readValue(json, clazz);
+				} else {
+					var arrayClass = ClassUtil.getArrayClass(clazz);
+					if (Objects.equals(type, arrayClass.getCanonicalName())) {
+						return List.of(objectMapper.readValue(json, arrayClass));
+					}
+				}
 			}
 		} catch (JsonProcessingException e) {
 			throw new JsonException("convert value of type '" + type + "' from", e);

@@ -1,5 +1,6 @@
 package cz.cvut.kbss.changetracking.util;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 /**
@@ -63,5 +64,10 @@ public class ClassUtil {
 		}
 		result.trimToSize();
 		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> Class<T[]> getArrayClass(Class<T> target) {
+		return (Class<T[]>) Array.newInstance(target, 0).getClass();
 	}
 }
