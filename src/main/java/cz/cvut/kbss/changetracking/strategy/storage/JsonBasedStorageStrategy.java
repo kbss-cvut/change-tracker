@@ -30,8 +30,7 @@ public abstract class JsonBasedStorageStrategy implements StorageStrategy {
 		Integer.class,
 		int.class,
 		Boolean.class,
-		boolean.class,
-		Collection.class // TODO: implement without being naive
+		boolean.class
 	));
 	protected final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -51,8 +50,16 @@ public abstract class JsonBasedStorageStrategy implements StorageStrategy {
 		)).collect(Collectors.toList());
 	}
 
+	protected static Optional<Object> getFirstCollectionElement(Collection<?> collection) {
+		Iterator<?> it = collection.iterator();
+		if (it.hasNext())
+			return Optional.of(it.next());
+
+		return Optional.empty();
+	}
+
 	/**
-	 * Convert a value of any supported attribute type into JSON.
+	 * Convert a value of any supported attribute type (or a Collection of a supported type) into JSON.
 	 *
 	 * @param object object The value.
 	 * @return A JSON representation of the value.
@@ -60,7 +67,15 @@ public abstract class JsonBasedStorageStrategy implements StorageStrategy {
 	 */
 	String convertValueToJson(Object object) {
 		try {
-			if (supportedAttributeClasses.stream().anyMatch(clazz -> clazz.isInstance(object))) {
+			Object matchedObj;
+			if (object instanceof Collection) {
+				// if a collection, extract the first element to discover the inner type
+				// if the optional is empty,
+				matchedObj = getFirstCollectionElement((Collection<?>) object).orElse("");
+			} else {
+				matchedObj = object;
+			}
+			if (supportedAttributeClasses.stream().anyMatch(clazz -> clazz.isInstance(matchedObj))) {
 				return objectMapper.writeValueAsString(object);
 			}
 			throw new UnsupportedAttributeTypeException(object.getClass().getCanonicalName());
