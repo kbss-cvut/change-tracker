@@ -1,5 +1,7 @@
 package cz.cvut.kbss.changetracking.util;
 
+import cz.cvut.kbss.changetracking.exception.UnsupportedAttributeTypeException;
+
 import java.lang.reflect.Array;
 import java.util.*;
 
@@ -66,8 +68,31 @@ public class ClassUtil {
 		return result;
 	}
 
+	/**
+	 * For example: get an {@link Optional} of the {@code String[]} class for {@code "java.lang.String[]"} or an
+	 * empty Optional for {@code "java.lang.String"}. This uses a naive method: simply checks if the last two
+	 * characters of the class are "[]".
+	 *
+	 * @throws UnsupportedAttributeTypeException When the target class fails can't be found.
+	 * @implNote The double cast is necessary to ensure the correct return type.
+	 */
 	@SuppressWarnings("unchecked")
-	public static <T> Class<T[]> getArrayClass(Class<T> target) {
+	public static <T> Optional<Class<T[]>> getArrayClassByName(String className) {
+		if ("[]".equals(className.substring(className.length() - 2))) {
+			try {
+				return Optional.of((Class<T[]>) ((Class<?>) getArrayClassFromSingular(Class.forName(className.substring(
+					0,
+					className.length() - 2
+				)))));
+			} catch (ClassNotFoundException e) {
+				throw new UnsupportedAttributeTypeException(className);
+			}
+		}
+		return Optional.empty();
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> Class<T[]> getArrayClassFromSingular(Class<T> target) {
 		return (Class<T[]>) Array.newInstance(target, 0).getClass();
 	}
 }

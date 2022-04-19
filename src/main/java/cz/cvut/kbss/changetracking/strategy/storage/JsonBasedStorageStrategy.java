@@ -16,22 +16,6 @@ import java.util.stream.Collectors;
  * format for attribute values.
  */
 public abstract class JsonBasedStorageStrategy implements StorageStrategy {
-	/**
-	 * Set of classes natively supported by Jackson's {@link ObjectMapper}.
-	 */
-	protected static final Set<Class<?>> supportedAttributeClasses = new HashSet<>(List.of(
-		String.class,
-		Character.class,
-		char.class,
-		Double.class,
-		double.class,
-		Float.class,
-		float.class,
-		Integer.class,
-		int.class,
-		Boolean.class,
-		boolean.class
-	));
 	protected final ObjectMapper objectMapper = new ObjectMapper();
 
 	/**
@@ -50,16 +34,8 @@ public abstract class JsonBasedStorageStrategy implements StorageStrategy {
 		)).collect(Collectors.toList());
 	}
 
-	protected static Optional<Object> getFirstCollectionElement(Collection<?> collection) {
-		Iterator<?> it = collection.iterator();
-		if (it.hasNext())
-			return Optional.of(it.next());
-
-		return Optional.empty();
-	}
-
 	/**
-	 * Convert a value of any supported attribute type (or a Collection of a supported type) into JSON.
+	 * Convert a value into JSON.
 	 *
 	 * @param object object The value.
 	 * @return A JSON representation of the value.
@@ -67,48 +43,36 @@ public abstract class JsonBasedStorageStrategy implements StorageStrategy {
 	 */
 	String convertValueToJson(Object object) {
 		try {
-			Object matchedObj;
-			if (object instanceof Collection) {
-				// if a collection, extract the first element to discover the inner type
-				// if the optional is empty,
-				matchedObj = getFirstCollectionElement((Collection<?>) object).orElse("");
-			} else {
-				matchedObj = object;
-			}
-			if (supportedAttributeClasses.stream().anyMatch(clazz -> clazz.isInstance(matchedObj))) {
-				return objectMapper.writeValueAsString(object);
-			}
-			throw new UnsupportedAttributeTypeException(object.getClass().getCanonicalName());
+			return objectMapper.writeValueAsString(object);
 		} catch (JsonProcessingException e) {
 			throw new JsonException("convert value to", e);
 		}
 	}
 
 	/**
-	 * Convert a value from JSON to a type supported by this {@link StorageStrategy}.
+	 * Convert a value from JSON to the original type. If the type is understood as an array, a {@link Collection} will
+	 * be returned.
 	 *
 	 * @param type Fully qualified class name of the type.
 	 * @param json JSON representation of the value.
 	 * @return The original value.
 	 * @throws JsonException When conversion from JSON fails, for example if the class is not supported.
+	 * @throws UnsupportedAttributeTypeException When the target class can't be found.
 	 */
 	Object convertValueFromJson(String type, String json) {
 		try {
-			for (var clazz : supportedAttributeClasses) {
-				var className = clazz.getCanonicalName();
-				if (Objects.equals(type, className)) {
-					return objectMapper.readValue(json, clazz);
-				} else {
-					var arrayClass = ClassUtil.getArrayClass(clazz);
-					if (Objects.equals(type, arrayClass.getCanonicalName())) {
-						return List.of(objectMapper.readValue(json, arrayClass));
-					}
-				}
+			var arrayClassOptional = ClassUtil.getArrayClassByName(type);
+			if (arrayClassOptional.isPresent()) {
+				Class<Object[]> arrayClass = arrayClassOptional.get();
+				return List.of(objectMapper.readValue(json, arrayClass));
+			} else {
+				var clazz = Class.forName(type);
+				return objectMapper.readValue(json, clazz);
 			}
 		} catch (JsonProcessingException e) {
 			throw new JsonException("convert value of type '" + type + "' from", e);
+		} catch (ClassNotFoundException e) {
+			throw new UnsupportedAttributeTypeException(type);
 		}
-
-		throw new UnsupportedAttributeTypeException(type);
 	}
 }

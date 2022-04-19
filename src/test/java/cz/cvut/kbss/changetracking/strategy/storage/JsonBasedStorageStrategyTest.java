@@ -26,15 +26,10 @@ class JsonBasedStorageStrategyTest {
 			Arguments.of(String.class, "\"\"", ""),
 			Arguments.of(String.class, "\"hello\"", "hello"),
 			Arguments.of(Character.class, "\"c\"", 'c'),
-			Arguments.of(char.class, "\"x\"", 'x'),
 			Arguments.of(Double.class, "66.667", 66.667d),
-			Arguments.of(double.class, "10.03", 10.03d),
 			Arguments.of(Float.class, "9999999.0", 9999999f),
-			Arguments.of(float.class, "-13.9",  - 13.9f),
 			Arguments.of(Integer.class, "100", 100),
-			Arguments.of(int.class, "10", 10),
-			Arguments.of(Boolean.class, "true", true),
-			Arguments.of(boolean.class, "false", false)
+			Arguments.of(Boolean.class, "true", true)
 		);
 	}
 
@@ -43,7 +38,7 @@ class JsonBasedStorageStrategyTest {
 	 * because set elements may not always be (de)serialized in the initial order.
 	 */
 	static <E> void assertJsonArrayContainsSetValues(String jsonArray, Set<E> elements, Class<E> targetClass) throws JsonProcessingException {
-		var list = List.of((Object[]) mapper.readValue(jsonArray, ClassUtil.getArrayClass(targetClass)));
+		var list = List.of((Object[]) mapper.readValue(jsonArray, ClassUtil.getArrayClassFromSingular(targetClass)));
 		assertEquals(elements.size(), list.size());
 		assertTrue(list.containsAll(elements));
 	}
@@ -87,13 +82,6 @@ class JsonBasedStorageStrategyTest {
 	}
 
 	@Test
-	void convertValueToJson_unsupportedType_throws() {
-		var city = new City("Los Angeles");
-
-		assertThrows(UnsupportedAttributeTypeException.class, () -> strategy.convertValueToJson(city));
-	}
-
-	@Test
 	void convertValueToJson_emptySet_returnsEmptyJsonArray() {
 		assertEquals("[]", strategy.convertValueToJson(new HashSet<String>()));
 	}
@@ -122,20 +110,5 @@ class JsonBasedStorageStrategyTest {
 	<E> void convertValueFromJson_primitives_returnsCorrectIterable(List<E> expectedList, Class<E> clazz, String json) {
 		var value = strategy.convertValueFromJson(clazz.getCanonicalName() + "[]", json);
 		assertIterableEquals(expectedList, (Iterable<?>) value);
-	}
-
-	/**
-	 * An unsupported type example.
-	 */
-	protected static class City {
-		protected String name;
-
-		public City(String name) {
-			this.name = name;
-		}
-
-		public String getName() {
-			return name;
-		}
 	}
 }

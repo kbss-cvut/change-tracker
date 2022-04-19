@@ -1,5 +1,6 @@
 package cz.cvut.kbss.changetracking.util;
 
+import cz.cvut.kbss.changetracking.exception.UnsupportedAttributeTypeException;
 import cz.cvut.kbss.changetracking.model.Home;
 import cz.cvut.kbss.changetracking.model.House;
 import cz.cvut.kbss.changetracking.model.UndergraduateStudent;
@@ -31,12 +32,27 @@ class ClassUtilTest {
 	}
 
 	@Test
-	void getArrayClass_string_returnsStringArrayClass() {
-		assertEquals(String[].class, ClassUtil.getArrayClass(String.class));
+	void getArrayClassForSingular_string_returnsStringArrayClass() {
+		assertEquals(String[].class, ClassUtil.getArrayClassFromSingular(String.class));
 	}
 
 	@Test
-	void getArrayClass_stringArray_returnsStringArrayArrayClass() {
-		assertEquals(String[][].class, ClassUtil.getArrayClass(String[].class));
+	void getArrayClassForSingular_stringArray_returnsStringArrayArrayClass() {
+		assertEquals(String[][].class, ClassUtil.getArrayClassFromSingular(String[].class));
+	}
+
+	@Test
+	void getArrayClassByName_stringArray_stringArrayClass() {
+		assertEquals(String[].class, ClassUtil.getArrayClassByName("java.lang.String[]").get());
+	}
+
+	@Test
+	void getArrayClassByName_string_emptyOptional() {
+		assertTrue(ClassUtil.getArrayClassByName("java.lang.String").isEmpty());
+	}
+
+	@Test
+	void getArrayClassByName_unknownClassName_throws() {
+		assertThrows(UnsupportedAttributeTypeException.class, () -> ClassUtil.getArrayClassByName("xx.xxxxxx.x[]"));
 	}
 }
