@@ -9,13 +9,17 @@ import cz.cvut.kbss.changetracking.model.ChangeVector;
 import cz.cvut.kbss.changetracking.util.ClassUtil;
 import cz.cvut.kbss.jopa.model.annotations.OWLClass;
 import cz.cvut.kbss.jopa.model.annotations.OWLDataProperty;
+import cz.cvut.kbss.jopa.model.annotations.OWLObjectProperty;
 import cz.cvut.kbss.jopa.model.metamodel.*;
 import cz.cvut.kbss.jopa.vocabulary.RDF;
 import org.jetbrains.annotations.NotNull;
 
+import java.net.URI;
+import java.net.URL;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -65,7 +69,15 @@ public class JopaEntityStrategy extends BaseEntityStrategy<FieldSpecification<?,
 				var val1 = getAttributeValue(attr, older);
 				var val2 = getAttributeValue(attr, newer);
 				if (!Objects.equals(val1, val2)) {
-					if (attr instanceof Attribute | attr instanceof TypesSpecification) {
+					if (attr instanceof Attribute) {
+						// if ObjectProperty (association), determine the associated entity's (entities') identifier(s)
+						if (((Attribute<?, ?>) attr).isAssociation()) {
+							var oldId = extractEntityIdentifier(attr, val1);
+							return Stream.of(new ChangeVector<>(typeName, id1, getAttributeName(attr), oldId));
+						} else {
+							return Stream.of(new ChangeVector<>(typeName, id1, getAttributeName(attr), val1));
+						}
+					} else if (attr instanceof TypesSpecification) {
 						return Stream.of(new ChangeVector<>(typeName, id1, getAttributeName(attr), val1));
 					} else if (attr instanceof PropertiesSpecification) {
 						return createVectorsForUnmappedProperties(typeName, id1, (Map<?, ?>) val1, (Map<?, ?>) val2);
@@ -77,6 +89,34 @@ public class JopaEntityStrategy extends BaseEntityStrategy<FieldSpecification<?,
 			})
 			.filter(Objects::nonNull)
 			.collect(Collectors.toList());
+	}
+
+	// TODO: refactor to use this from JOPA API as it was just copied
+	private static final Set<Class<?>> SUPPORTED_IDENTIFIER_TYPES = Set.of(URI.class, URL.class, String.class);
+
+	/**
+	 * Extract an identifier from an associated entity, or multiple identifiers if the association is x-to-many.
+	 *
+	 * @param otherEntity Might in fact be any identifier type supported by JOPA (that being
+	 * {@link #SUPPORTED_IDENTIFIER_TYPES}), an actual instance of the target entity class, or a {@link Collection} of
+	 * either of the former.
+	 */
+	private Object extractEntityIdentifier(FieldSpecification<?, ?> attr, Object otherEntity) {
+		if (otherEntity instanceof Collection) {
+			// still might contain either of the other two variants
+			return ((Collection<?>) otherEntity)
+				.stream()
+				.map(instance -> extractEntityIdentifier(attr, instance))
+				.collect(Collectors.toList());
+		} else if (SUPPORTED_IDENTIFIER_TYPES.contains(otherEntity.getClass())) {
+			return otherEntity;
+		} else {
+			// entity instance
+			return getAttributeValue(
+				metamodel.entity(((Bindable<?>) attr).getBindableJavaType()).getIdentifier(),
+				otherEntity
+			);
+		}
 	}
 
 	@Override
@@ -142,7 +182,9 @@ public class JopaEntityStrategy extends BaseEntityStrategy<FieldSpecification<?,
 	@Override
 	public String getAttributeName(FieldSpecification<?, ?> field) {
 		var jField = field.getJavaField();
-		if (field instanceof Attribute && jField.isAnnotationPresent(OWLDataProperty.class)) {
+		if (field instanceof Attribute &&
+			(jField.isAnnotationPresent(OWLDataProperty.class) || (jField.isAnnotationPresent(OWLObjectProperty.class)))
+		) {
 			return ((Attribute<?, ?>) field).getIRI().toString();
 		} else if (field instanceof TypesSpecification) {
 			return RDF.TYPE;

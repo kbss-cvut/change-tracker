@@ -27,6 +27,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class JopaEntityStrategyTest {
 	static final String studentInstanceIri = "http://www.oni.unsc.org/spartanII/John117";
+	static final String carInstanceIri = "http://127.0.0.1/F150";
+	static final String childInstanceIri = "http://127.0.0.1/LittleKate";
+	static final String motherInstanceIri = "http://127.0.0.1/Diane";
 	static final String homeInstanceIri = "http://127.0.0.1/instance/SydneyHouse";
 	static final String superheroInstanceIri = "http://127.0.0.1/instance/Jacob";
 	static BaseEntityStrategy<FieldSpecification<?, ?>> strategy;
@@ -415,6 +418,89 @@ public class JopaEntityStrategyTest {
 		var vecs = strategy.getChangeVectors(student1, student2, true);
 
 		assertTrue(vecs.isEmpty());
+	}
+
+	@Test
+	void getChangeVectors_unchangedObjectProperty_noVectors() {
+		var mother = new Person(motherInstanceIri, "Austen", null);
+		var child1 = new Person(childInstanceIri, "Austen", mother);
+		var child2 = new Person(childInstanceIri, "Austen", mother);
+		mother.addChildren(child1, child2);
+
+		var vecs = strategy.getChangeVectors(child1, child2, true);
+
+		assertTrue(vecs.isEmpty());
+	}
+
+	@Test
+	void getChangeVectors_changedObjectProperty_vectorWithIdentifier() {
+		var motherIri1 = motherInstanceIri + "1";
+		var motherIri2 = motherInstanceIri + "2";
+
+		var mother1 = new Person(motherIri1, "Littleton", null);
+		var mother2 = new Person(motherIri2, "Littleton", null);
+		var child1 = new Person(childInstanceIri, "Littleton", mother1);
+		var child2 = new Person(childInstanceIri, "Littleton", mother2);
+
+		var vecs = strategy.getChangeVectors(child1, child2, true);
+
+		vectorAssert(
+			vecs,
+			TestIRIs.CLASS_PERSON,
+			childInstanceIri,
+			TestIRIs.PROPERTY_OBJECT_HAS_MOTHER,
+			URI.create(motherIri1)
+		);
+	}
+
+	@Test
+	void getChangeVectors_changedObjectPropertySet_vectorWithIdentifier() {
+		var childInstanceIri1 = childInstanceIri + "1";
+		var childInstanceIri2 = childInstanceIri + "2";
+
+		var mother1 = new Person(motherInstanceIri, "Shephard", null);
+		var child1 = new Person(childInstanceIri1, "Not Shephard", mother1);
+		var child2 = new Person(childInstanceIri2, "Not Shephard", mother1);
+
+		mother1.addChildren(child1);
+		var mother2 = new Person(mother1);
+		mother2.addChildren(child2);
+
+		var vecs = strategy.getChangeVectors(mother1, mother2, true);
+
+		vectorAssert(
+			vecs,
+			TestIRIs.CLASS_PERSON,
+			motherInstanceIri,
+			TestIRIs.PROPERTY_OBJECT_HAS_CHILD,
+			List.of(URI.create(childInstanceIri1))
+		);
+	}
+
+	@Test
+	void getChangeVectors_unchangedURIObjectProperty_noVectors() {
+		var carMother1 = new Car(carInstanceIri, motherInstanceIri);
+		var carMother2 = new Car(carInstanceIri, motherInstanceIri);
+
+		var vecs = strategy.getChangeVectors(carMother1, carMother2, true);
+
+		assertTrue(vecs.isEmpty());
+	}
+
+	@Test
+	void getChangeVectors_changedURIObjectProperty_vectorWithIdentifier() {
+		var carMother = new Car(carInstanceIri, motherInstanceIri);
+		var carChild = new Car(carInstanceIri, childInstanceIri);
+
+		var vecs = strategy.getChangeVectors(carMother, carChild, true);
+
+		vectorAssert(
+			vecs,
+			TestIRIs.CLASS_CAR,
+			carInstanceIri,
+			TestIRIs.PROPERTY_OBJECT_HAS_OWNER,
+			URI.create(motherInstanceIri)
+		);
 	}
 
 	// FIXME: this may be semantically wrong
