@@ -490,6 +490,16 @@ public class JopaEntityStrategyTest {
 		);
 	}
 
+	@Test
+	void getChangeVectors_changedInferredPropertyOnly_noVectors() {
+		var hero1 = new Hero(TestIRIs.INSTANCE_SUPERHERO, "Ron", true);
+		var hero2 = new Hero(TestIRIs.INSTANCE_SUPERHERO, "Ron", false);
+
+		var vecs = strategy.getChangeVectors(hero1, hero2, true);
+
+		assertTrue(vecs.isEmpty());
+	}
+
 	// FIXME: this may be semantically wrong
 	@Test
 	void checkClassSupported_classWithoutOWLAnnotation_throwsClassNotAuditedException() {

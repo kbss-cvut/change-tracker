@@ -69,8 +69,12 @@ public class JopaEntityStrategy extends BaseEntityStrategy<FieldSpecification<?,
 		return fieldSpecs
 			.stream()
 			.flatMap(attr -> {
+				if (attr.isInferred())
+					return null;
+
 				var val1 = getAttributeValue(attr, older);
 				var val2 = getAttributeValue(attr, newer);
+
 				if (!Objects.equals(val1, val2)) {
 					if (attr instanceof Attribute) {
 						// if ObjectProperty (association), determine the associated entity's (entities') identifier(s)
