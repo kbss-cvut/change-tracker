@@ -24,4 +24,11 @@ public class TestIRIs {
 
 	public static final String TYPE_MAN = "http://127.0.0.1/types#Man";
 	public static final String TYPE_STUDENT = "http://127.0.0.1/types#Student";
+
+	public static final String INSTANCE_CAR = "http://127.0.0.1/F150";
+	public static final String INSTANCE_CHILD = "http://127.0.0.1/LittleKate";
+	public static final String INSTANCE_HOME = "http://127.0.0.1/instance/SydneyHouse";
+	public static final String INSTANCE_MOTHER = "http://127.0.0.1/Diane";
+	public static final String INSTANCE_STUDENT = "http://www.oni.unsc.org/spartanII/John117";
+	public static final String INSTANCE_SUPERHERO = "http://127.0.0.1/instance/Jacob";
 }
