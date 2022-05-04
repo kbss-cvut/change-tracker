@@ -14,6 +14,8 @@ public interface EntityStrategy {
 	/**
 	 * Create change vectors between two revisions of an object. The revisions have to be mutually compatible, i.e.
 	 * instances of the same class or have a common non-interface ancestor in the class hierarchy.
+	 * <p>
+	 * This method is NOT responsible for calling {@link ChangeVector#setAuthorId(String)}!
 	 *
 	 * @param older         The older revision of the observed object.
 	 * @param newer         The newer revision of the observed object.

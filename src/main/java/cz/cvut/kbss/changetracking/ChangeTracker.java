@@ -9,6 +9,7 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class ChangeTracker {
 
@@ -32,13 +33,21 @@ public class ChangeTracker {
 	 * The same as the standard compare, but ignoring changes in the objects' identifiers: if it is not equal, no
 	 * exception will be thrown but a change vector WILL NOT be created for the identifier.
 	 *
-	 * @see #compare(Object, Object)
+	 * @see #compare(Object, Object, String)
 	 */
-	public Collection<ChangeVector<?>> compareIgnoringIds(Object older, Object newer) {
+	public Collection<ChangeVector<?>> compareIgnoringIds(Object older, Object newer, String authorId) {
 		Objects.requireNonNull(older);
 		Objects.requireNonNull(newer);
 
-		return entityStrategy.getChangeVectors(older, newer, false);
+		var vectors = entityStrategy.getChangeVectors(older, newer, false);
+
+		if (authorId == null)
+			return vectors;
+
+		return vectors
+			.stream()
+			.peek(vector -> vector.setAuthorId(authorId))
+			.collect(Collectors.toList());
 	}
 
 	/**
@@ -46,6 +55,8 @@ public class ChangeTracker {
 	 *
 	 * @param older The older revision of the object.
 	 * @param newer The newer revision of the object.
+	 * @param authorId An application-unique identifier of the entity responsible for the change. If specified, it will
+	 *                 be propagated to all created vectors.
 	 * @return A collection of change vectors between the two revisions.
 	 * @throws ObjectsNotCompatibleException                                  If the objects are not mutually compatible.
 	 * @throws cz.cvut.kbss.changetracking.exception.ClassNotAuditedException If at least one of the objects' classes is
@@ -53,11 +64,19 @@ public class ChangeTracker {
 	 *                                                                        EntityStrategy}.
 	 * @throws cz.cvut.kbss.changetracking.exception.IdNotMatchingException   When the objects' IDs don't match.
 	 */
-	public Collection<ChangeVector<?>> compare(Object older, Object newer) {
+	public Collection<ChangeVector<?>> compare(Object older, Object newer, String authorId) {
 		Objects.requireNonNull(older);
 		Objects.requireNonNull(newer);
 
-		return entityStrategy.getChangeVectors(older, newer, true);
+		var vectors = entityStrategy.getChangeVectors(older, newer, true);
+
+		if (authorId == null)
+			return vectors;
+
+		return vectors
+			.stream()
+			.peek(vector -> vector.setAuthorId(authorId))
+			.collect(Collectors.toList());
 	}
 
 	/**
@@ -65,6 +84,8 @@ public class ChangeTracker {
 	 *
 	 * @param older The older revision of the object.
 	 * @param newer The newer revision of the object.
+	 * @param authorId An application-unique identifier of the entity responsible for the change. If specified, it will
+	 *                 be propagated to all created vectors.
 	 * @param <T>   The object's type.
 	 * @throws ObjectsNotCompatibleException                                  If the objects are not mutually compatible.
 	 * @throws cz.cvut.kbss.changetracking.exception.ClassNotAuditedException If at least one of the objects' classes is
@@ -72,8 +93,8 @@ public class ChangeTracker {
 	 *                                                                        EntityStrategy}.
 	 * @throws cz.cvut.kbss.changetracking.exception.IdNotMatchingException   When the objects' IDs don't match.
 	 */
-	public <T> void compareAndSave(T older, T newer) {
-		var vectors = compare(older, newer);
+	public <T> void compareAndSave(T older, T newer, String authorId) {
+		var vectors = compare(older, newer, authorId);
 		storageStrategy.save(vectors.toArray(ChangeVector<?>[]::new));
 	}
 

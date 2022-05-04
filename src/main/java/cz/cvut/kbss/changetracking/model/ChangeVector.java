@@ -31,6 +31,8 @@ public class ChangeVector<T> implements Serializable {
 
 	protected String objectId;
 
+	protected String authorId;
+
 	public ChangeVector(
 		@NotNull JsonChangeVector vector,
 		T previousValue
@@ -90,6 +92,14 @@ public class ChangeVector<T> implements Serializable {
 		return objectId;
 	}
 
+	public String getAuthorId() {
+		return authorId;
+	}
+
+	public void setAuthorId(String authorId) {
+		this.authorId = authorId;
+	}
+
 	@Override
 	public String toString() {
 		return "ChangeVector{" +
@@ -98,6 +108,7 @@ public class ChangeVector<T> implements Serializable {
 			", attributeName='" + attributeName + '\'' +
 			", objectType='" + objectType + '\'' +
 			", objectId='" + objectId + '\'' +
+			", authorId='" + authorId + '\'' +
 			'}';
 	}
 
@@ -110,11 +121,12 @@ public class ChangeVector<T> implements Serializable {
 			&& Objects.equals(previousValue, that.previousValue)
 			&& attributeName.equals(that.attributeName)
 			&& objectType.equals(that.objectType)
-			&& objectId.equals(that.objectId);
+			&& objectId.equals(that.objectId)
+			&& Objects.equals(authorId, that.authorId);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(timestamp, previousValue, attributeName, objectType, objectId);
+		return Objects.hash(timestamp, previousValue, attributeName, objectType, objectId, authorId);
 	}
 }

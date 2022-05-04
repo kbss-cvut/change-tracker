@@ -31,8 +31,11 @@ public class JopaEntityStrategy extends BaseEntityStrategy<FieldSpecification<?,
 	}
 
 	@Override
-	public final <TEntity> Collection<ChangeVector<?>> getChangeVectors(TEntity older, TEntity newer,
-		boolean requireSameId) {
+	public final <TEntity> Collection<ChangeVector<?>> getChangeVectors(
+		TEntity older,
+		TEntity newer,
+		boolean requireSameId
+	) {
 		var type1 = getObjectType(older);
 		var type2 = getObjectType(newer);
 		var id1 = getObjectId(older);

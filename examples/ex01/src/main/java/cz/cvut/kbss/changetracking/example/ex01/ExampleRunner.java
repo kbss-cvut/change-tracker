@@ -40,7 +40,8 @@ public class ExampleRunner implements CommandLineRunner {
 		var paper1 = new ConferencePaper("http://www.conference001.org/2021/paper1", "Technology behing JOPA");
 		var paper2 = new ConferencePaper(paper1);
 		paper2.setName("Technology behind JOPA");
-		changeTracker.compareAndSave(paper1, paper2);
+
+		changeTracker.compareAndSave(paper1, paper2, "Peter");
 
 		System.out.println("done saving");
 
