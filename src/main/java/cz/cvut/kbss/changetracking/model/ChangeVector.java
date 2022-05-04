@@ -6,6 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.Objects;
 
 /**
  * {@link ChangeVector} is the change vector representation to be used by the client application. Instances of this
@@ -100,5 +101,20 @@ public class ChangeVector<T> implements Serializable {
 			'}';
 	}
 
-	// TODO: hashCode, equals
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof ChangeVector)) return false;
+		ChangeVector<?> that = (ChangeVector<?>) o;
+		return timestamp.equals(that.timestamp)
+			&& Objects.equals(previousValue, that.previousValue)
+			&& attributeName.equals(that.attributeName)
+			&& objectType.equals(that.objectType)
+			&& objectId.equals(that.objectId);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(timestamp, previousValue, attributeName, objectType, objectId);
+	}
 }
