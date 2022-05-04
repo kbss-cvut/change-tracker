@@ -492,12 +492,34 @@ public class JopaEntityStrategyTest {
 
 	@Test
 	void getChangeVectors_changedInferredPropertyOnly_noVectors() {
-		var hero1 = new Hero(TestIRIs.INSTANCE_SUPERHERO, "Ron", true);
-		var hero2 = new Hero(TestIRIs.INSTANCE_SUPERHERO, "Ron", false);
+		var hero1 = new Hero(TestIRIs.INSTANCE_SUPERHERO, "Ron", "LaFlamme", true);
+		var hero2 = new Hero(TestIRIs.INSTANCE_SUPERHERO, "Ron", "LaFlamme", false);
 
 		var vecs = strategy.getChangeVectors(hero1, hero2, true);
 
 		assertTrue(vecs.isEmpty());
+	}
+
+
+	@Test
+	void getChangeVectors_changedIgnoredPropertyOnly_noVectors() {
+		var hero1 = new Hero(TestIRIs.INSTANCE_SUPERHERO, "Ron", "LaFlamme", true);
+		var hero2 = new Hero(TestIRIs.INSTANCE_SUPERHERO, "Ron", "Livingston", true);
+
+		var vecs = strategy.getChangeVectors(hero1, hero2, true);
+
+		assertTrue(vecs.isEmpty());
+	}
+
+	@Test
+	void getChangeVectors_changedInferredIgnoredAndTrackedProperties_oneVector() {
+		var hero1 = new Hero(TestIRIs.INSTANCE_SUPERHERO, "Ron", "LaFlamme", false);
+		var hero2 = new Hero(TestIRIs.INSTANCE_SUPERHERO, "Ralph", "Livingston", true);
+
+		var vecs = strategy.getChangeVectors(hero1, hero2, true);
+
+		assertEquals(1, vecs.size());
+		vectorAssert(vecs, TestIRIs.CLASS_SUPERHERO, TestIRIs.INSTANCE_SUPERHERO, TestIRIs.PROPERTY_FIRST_NAME, "Ron");
 	}
 
 	// FIXME: this may be semantically wrong

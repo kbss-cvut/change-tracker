@@ -1,6 +1,7 @@
 package cz.cvut.kbss.changetracking.strategy.entity;
 
 import cz.cvut.kbss.changetracking.annotation.Audited;
+import cz.cvut.kbss.changetracking.annotation.IgnoreChanges;
 import cz.cvut.kbss.changetracking.exception.AccessDeniedException;
 import cz.cvut.kbss.changetracking.exception.ClassNotAuditedException;
 import cz.cvut.kbss.changetracking.exception.IdNotMatchingException;
@@ -69,7 +70,7 @@ public class JopaEntityStrategy extends BaseEntityStrategy<FieldSpecification<?,
 		return fieldSpecs
 			.stream()
 			.flatMap(attr -> {
-				if (attr.isInferred())
+				if (attr.isInferred() || shouldIgnoreChanges(attr))
 					return null;
 
 				var val1 = getAttributeValue(attr, older);
@@ -96,6 +97,10 @@ public class JopaEntityStrategy extends BaseEntityStrategy<FieldSpecification<?,
 			})
 			.filter(Objects::nonNull)
 			.collect(Collectors.toList());
+	}
+
+	private boolean shouldIgnoreChanges(FieldSpecification<?, ?> specification) {
+		return specification.getJavaField().isAnnotationPresent(IgnoreChanges.class);
 	}
 
 	// TODO: refactor to use this from JOPA API as it was just copied
