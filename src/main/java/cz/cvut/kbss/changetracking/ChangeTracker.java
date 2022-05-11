@@ -4,6 +4,7 @@ import cz.cvut.kbss.changetracking.exception.ObjectsNotCompatibleException;
 import cz.cvut.kbss.changetracking.model.ChangeVector;
 import cz.cvut.kbss.changetracking.strategy.entity.EntityStrategy;
 import cz.cvut.kbss.changetracking.strategy.storage.StorageStrategy;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.Collection;
@@ -92,6 +93,7 @@ public class ChangeTracker {
 	 *                                                                        EntityStrategy}.
 	 * @throws cz.cvut.kbss.changetracking.exception.IdNotMatchingException   When the objects' IDs don't match.
 	 */
+	@Transactional
 	public void compareAndSave(Object older, Object newer, String authorId) {
 		var vectors = compare(older, newer, authorId);
 		storageStrategy.save(vectors.toArray(ChangeVector<?>[]::new));
@@ -102,6 +104,7 @@ public class ChangeTracker {
 	 * <p>
 	 * This method calls {@link StorageStrategy#getAllForObject(String, String)}.
 	 */
+	@Transactional
 	public List<ChangeVector<?>> getAllForObject(String objectType, String objectId) {
 		return storageStrategy.getAllForObject(objectType, objectId);
 	}
@@ -111,6 +114,7 @@ public class ChangeTracker {
 	 * <p>
 	 * This method calls {@link StorageStrategy#getChangesSince(Instant)}.
 	 */
+	@Transactional
 	public List<ChangeVector<?>> getChangesSince(Instant timestamp) {
 		return storageStrategy.getChangesSince(timestamp);
 	}
@@ -121,6 +125,7 @@ public class ChangeTracker {
 	 * This method calls {@link StorageStrategy#getChangesOfTypeSince(Instant, String)} and converts the attributes'
 	 * values to the original types.
 	 */
+	@Transactional
 	public List<ChangeVector<?>> getChangesOfTypeSince(Instant timestamp, String objectType) {
 		return storageStrategy.getChangesOfTypeSince(timestamp, objectType);
 	}
