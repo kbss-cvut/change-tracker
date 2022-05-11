@@ -29,11 +29,16 @@ public class JpaStorageStrategy extends JsonBasedStorageStrategy {
 	public void save(ChangeVector<?>... rawVectors) {
 		Arrays
 			.stream(rawVectors)
-			.map(vector -> new JsonChangeVector(
-				vector,
-				vector.getPreviousValue().getClass(),
-				convertValueToJson(vector.getPreviousValue())
-			))
+			.map(vector -> {
+				var value = vector.getPreviousValue();
+				var valueClass = value == null ? Object.class : value.getClass();
+
+				return new JsonChangeVector(
+					vector,
+					valueClass,
+					convertValueToJson(value)
+				);
+			})
 			.forEach(em::persist);
 	}
 
