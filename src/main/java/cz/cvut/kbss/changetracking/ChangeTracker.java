@@ -86,14 +86,13 @@ public class ChangeTracker {
 	 * @param newer The newer revision of the object.
 	 * @param authorId An application-unique identifier of the entity responsible for the change. If specified, it will
 	 *                 be propagated to all created vectors.
-	 * @param <T>   The object's type.
 	 * @throws ObjectsNotCompatibleException                                  If the objects are not mutually compatible.
 	 * @throws cz.cvut.kbss.changetracking.exception.ClassNotAuditedException If at least one of the objects' classes is
 	 *                                                                        supported by the current {@link
 	 *                                                                        EntityStrategy}.
 	 * @throws cz.cvut.kbss.changetracking.exception.IdNotMatchingException   When the objects' IDs don't match.
 	 */
-	public <T> void compareAndSave(T older, T newer, String authorId) {
+	public void compareAndSave(Object older, Object newer, String authorId) {
 		var vectors = compare(older, newer, authorId);
 		storageStrategy.save(vectors.toArray(ChangeVector<?>[]::new));
 	}
