@@ -8,6 +8,7 @@ import cz.cvut.kbss.changetracking.exception.IdNotMatchingException;
 import cz.cvut.kbss.changetracking.exception.ObjectsNotCompatibleException;
 import cz.cvut.kbss.changetracking.model.ChangeVector;
 import cz.cvut.kbss.changetracking.util.ClassUtil;
+import cz.cvut.kbss.jopa.model.annotations.OWLAnnotationProperty;
 import cz.cvut.kbss.jopa.model.annotations.OWLClass;
 import cz.cvut.kbss.jopa.model.annotations.OWLDataProperty;
 import cz.cvut.kbss.jopa.model.annotations.OWLObjectProperty;
@@ -195,7 +196,11 @@ public class JopaEntityStrategy extends BaseEntityStrategy<FieldSpecification<?,
 	public String getAttributeName(FieldSpecification<?, ?> field) {
 		var jField = field.getJavaField();
 		if (field instanceof Attribute &&
-			(jField.isAnnotationPresent(OWLDataProperty.class) || (jField.isAnnotationPresent(OWLObjectProperty.class)))
+			(jField.isAnnotationPresent(OWLDataProperty.class)
+				|| jField.isAnnotationPresent(OWLObjectProperty.class)
+				|| jField.isAnnotationPresent(OWLAnnotationProperty.class)
+				// OPTIMIZE: why? isn't instanceof enough?
+			)
 		) {
 			return ((Attribute<?, ?>) field).getIRI().toString();
 		} else if (field instanceof TypesSpecification) {
