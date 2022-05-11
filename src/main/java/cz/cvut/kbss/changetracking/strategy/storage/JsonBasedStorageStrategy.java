@@ -1,7 +1,10 @@
 package cz.cvut.kbss.changetracking.strategy.storage;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import cz.cvut.kbss.changetracking.exception.JsonException;
 import cz.cvut.kbss.changetracking.exception.UnsupportedAttributeTypeException;
 import cz.cvut.kbss.changetracking.model.ChangeVector;
@@ -16,7 +19,20 @@ import java.util.stream.Collectors;
  * format for attribute values.
  */
 public abstract class JsonBasedStorageStrategy implements StorageStrategy {
-	protected final ObjectMapper objectMapper = new ObjectMapper();
+	protected final ObjectMapper objectMapper;
+
+	protected JsonBasedStorageStrategy() {
+		objectMapper = new ObjectMapper();
+		objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+	}
+
+	/**
+	 * Register a new JSON deserializer for a type.
+	 */
+	// TODO: proper generics, once TermIt allows them
+	public void registerDeserializer(Class clazz, StdDeserializer deserializer) {
+		objectMapper.registerModule(new SimpleModule().addDeserializer(clazz, deserializer));
+	}
 
 	/**
 	 * Convert vectors from {@link JsonChangeVector} to {@link ChangeVector}, i.e. convert their previousValues
