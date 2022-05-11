@@ -115,6 +115,8 @@ public class JopaEntityStrategy extends BaseEntityStrategy<FieldSpecification<?,
 	 * either of the former.
 	 */
 	private Object extractEntityIdentifier(FieldSpecification<?, ?> attr, Object otherEntity) {
+		if (otherEntity == null) return null;
+
 		if (otherEntity instanceof Collection) {
 			// still might contain either of the other two variants
 			return ((Collection<?>) otherEntity)
