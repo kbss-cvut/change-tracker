@@ -21,21 +21,28 @@ import cz.cvut.kbss.jopa.model.JOPAPersistenceProperties;
 import cz.cvut.kbss.jopa.model.JOPAPersistenceProvider;
 import cz.cvut.kbss.ontodriver.config.OntoDriverProperties;
 import cz.cvut.kbss.ontodriver.sesame.config.SesameOntoDriverProperties;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.util.HashMap;
 import java.util.Map;
 
+@Configuration
 public class JopaPersistenceFactory {
 
-    private static boolean initialized = false;
+    private boolean initialized = false;
 
-    private static EntityManagerFactory emf;
+    private EntityManagerFactory emf;
 
-    private JopaPersistenceFactory() {
-        throw new AssertionError();
+		@Autowired
+    public JopaPersistenceFactory() {
     }
 
-    public static void init(Map<String, String> properties) {
+		@PostConstruct
+    public void init() {
         final Map<String, String> props = new HashMap<>();
         // Here we set up basic storage access properties - driver class, physical location of the storage
         props.put(JOPAPersistenceProperties.ONTOLOGY_PHYSICAL_URI_KEY, "JOPASesameDemo");
@@ -48,9 +55,8 @@ public class JopaPersistenceFactory {
         props.put(SesameOntoDriverProperties.SESAME_USE_INFERENCE, Boolean.FALSE.toString());
         // Ontology language
         props.put(JOPAPersistenceProperties.LANG, "en");
-        if (properties != null) {
-            props.putAll(properties);
-        }
+				// Package containing entities
+				props.put(JOPAPersistenceProperties.SCAN_PACKAGE, "cz.cvut.kbss.changetracking.example.ex01.model");
         // Persistence provider name
         props.put(JOPAPersistenceProperties.JPA_PERSISTENCE_PROVIDER, JOPAPersistenceProvider.class.getName());
 
@@ -58,14 +64,23 @@ public class JopaPersistenceFactory {
         initialized = true;
     }
 
-    public static EntityManager createEntityManager() {
+		@PreDestroy
+		private void close() {
+			if (emf.isOpen()) {
+				emf.close();
+			}
+		}
+
+		@Bean
+    public EntityManager entityManager() {
         if (!initialized) {
             throw new IllegalStateException("Factory has not been initialized.");
         }
         return emf.createEntityManager();
     }
 
-    public static void close() {
-        emf.close();
-    }
+		@Bean("jopaEmf")
+		public EntityManagerFactory entityManagerFactory() {
+			return emf;
+		}
 }
