@@ -28,7 +28,7 @@ public class JpaStorageStrategy extends JsonBasedStorageStrategy {
 	}
 
 	public JpaStorageStrategy(EntityManager em, ObjectMapper objectMapper) {
-		super(Objects.requireNonNull(objectMapper));
+		super(objectMapper);
 		this.em = Objects.requireNonNull(em);
 	}
 
