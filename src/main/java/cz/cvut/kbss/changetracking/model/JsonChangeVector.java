@@ -32,6 +32,7 @@ public class JsonChangeVector extends ChangeVector<String> {
 			previousValueJson,
 			vector.getTimestamp()
 		);
+		this.authorId = vector.authorId;
 		this.attributeType = attributeClass.getName();
 	}
 

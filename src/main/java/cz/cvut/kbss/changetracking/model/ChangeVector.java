@@ -44,6 +44,7 @@ public class ChangeVector<T> implements Serializable {
 			previousValue,
 			vector.getTimestamp()
 		);
+		this.authorId = vector.authorId;
 	}
 
 	public ChangeVector(

@@ -33,4 +33,20 @@ class ChangeVectorTest {
 		);
 		assertEquals(vector1, vector2);
 	}
+
+	@Test
+	void constructor_copyFromJson_resultEqualsOrigin() {
+		var origin = new JsonChangeVector();
+		origin.attributeName = TestIRIs.PROPERTY_OBJECT_HAS_OWNER;
+		origin.attributeType = String.class.getName();
+		origin.objectId = TestIRIs.INSTANCE_CAR;
+		origin.objectType = TestIRIs.CLASS_CAR;
+		origin.previousValue = TestIRIs.INSTANCE_MOTHER;
+		origin.timestamp = Instant.now();
+		origin.authorId = "author name";
+
+		var result = new ChangeVector<>(origin, origin.getPreviousValue());
+
+		assertEquals(origin, result);
+	}
 }
