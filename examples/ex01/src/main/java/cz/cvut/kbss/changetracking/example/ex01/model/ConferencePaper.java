@@ -16,47 +16,68 @@ import cz.cvut.kbss.changetracking.annotation.Audited;
 import cz.cvut.kbss.jopa.model.annotations.Id;
 import cz.cvut.kbss.jopa.model.annotations.OWLClass;
 import cz.cvut.kbss.jopa.model.annotations.OWLDataProperty;
+import cz.cvut.kbss.jopa.model.annotations.Properties;
 
 import java.net.URI;
+import java.util.Map;
+import java.util.Set;
 
-@OWLClass(iri = "http://uob.iodt.ibm.com/univ-bench-dl.owl#ConferencePaper")
+@OWLClass(iri = "http://127.0.0.1/owl#ConferencePaper")
 @Audited
 public class ConferencePaper {
-  @Id(generated = true)
-  private URI uri;
-  @OWLDataProperty(iri = "http://uob.iodt.ibm.com/univ-bench-dl.owl#name")
-  private String name;
+	@Id(generated = true)
+	private URI uri;
+	@OWLDataProperty(iri = "http://127.0.0.1/owl#name")
+	private String name;
+	@Properties
+	private Map<String, Set<String>> properties;
 
-  public ConferencePaper(String uriString, String name) {
-    this.uri = URI.create(uriString);
-    this.name = name;
-  }
 
-  public ConferencePaper() {
-  }
+	public ConferencePaper(String uriString, String name, Map<String, Set<String>> properties) {
+		this.uri = URI.create(uriString);
+		this.name = name;
+		this.properties = properties;
+	}
 
-  public ConferencePaper(ConferencePaper toCopy) {
-    this.uri = toCopy.getUri();
-    this.name = toCopy.getName();
-  }
+	public ConferencePaper() {
+	}
 
-  public URI getUri() {
-    return uri;
-  }
+	public ConferencePaper(ConferencePaper toCopy) {
+		this.uri = toCopy.getUri();
+		this.name = toCopy.getName();
+		this.properties = toCopy.getProperties();
+	}
 
-  public void setUri(URI uri) {
-    this.uri = uri;
-  }
+	public URI getUri() {
+		return uri;
+	}
 
-  public String getName() {
-    return name;
-  }
+	public void setUri(URI uri) {
+		this.uri = uri;
+	}
 
-  public void setName(String name) {
-    this.name = name;
-  }
+	public String getName() {
+		return name;
+	}
 
-  public String toString() {
-    return "[ConferencePaper " + name + ", uri = " + uri + "]";
-  }
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public Map<String, Set<String>> getProperties() {
+		return properties;
+	}
+
+	public void setProperties(Map<String, Set<String>> properties) {
+		this.properties = properties;
+	}
+
+	@Override
+	public String toString() {
+		return "ConferencePaper{" +
+			"uri=" + uri +
+			", name='" + name + '\'' +
+			", properties=" + properties +
+			'}';
+	}
 }
