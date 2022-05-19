@@ -1,7 +1,7 @@
 package cz.cvut.kbss.changetracking;
 
 import cz.cvut.kbss.changetracking.model.ChangeVector;
-import cz.cvut.kbss.changetracking.model.Home;
+import cz.cvut.kbss.changetracking.testmodel.Home;
 import cz.cvut.kbss.changetracking.strategy.entity.EntityStrategy;
 import cz.cvut.kbss.changetracking.strategy.storage.StorageStrategy;
 import org.junit.jupiter.api.BeforeAll;

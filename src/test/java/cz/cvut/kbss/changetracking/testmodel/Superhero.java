@@ -10,7 +10,7 @@
  * details. You should have received a copy of the GNU General Public License along with this program. If not, see
  * <http://www.gnu.org/licenses/>.
  */
-package cz.cvut.kbss.changetracking.model;
+package cz.cvut.kbss.changetracking.testmodel;
 
 import cz.cvut.kbss.changetracking.TestIRIs;
 import cz.cvut.kbss.changetracking.annotation.Audited;

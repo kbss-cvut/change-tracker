@@ -1,4 +1,4 @@
-package cz.cvut.kbss.changetracking.model;
+package cz.cvut.kbss.changetracking.testmodel;
 
 import cz.cvut.kbss.changetracking.TestIRIs;
 import cz.cvut.kbss.changetracking.annotation.Audited;

@@ -6,6 +6,7 @@ import cz.cvut.kbss.changetracking.exception.ClassNotAuditedException;
 import cz.cvut.kbss.changetracking.exception.IdNotMatchingException;
 import cz.cvut.kbss.changetracking.exception.ObjectsNotCompatibleException;
 import cz.cvut.kbss.changetracking.model.*;
+import cz.cvut.kbss.changetracking.testmodel.*;
 import cz.cvut.kbss.jopa.loaders.PersistenceUnitClassFinder;
 import cz.cvut.kbss.jopa.model.JOPAPersistenceProperties;
 import cz.cvut.kbss.jopa.model.MetamodelImpl;
@@ -30,7 +31,7 @@ public class JopaEntityStrategyTest {
 	@BeforeAll
 	static void prepareStrategy() {
 		final var config = new Configuration();
-		config.set(JOPAPersistenceProperties.SCAN_PACKAGE, "cz.cvut.kbss.changetracking.model");
+		config.set(JOPAPersistenceProperties.SCAN_PACKAGE, "cz.cvut.kbss.changetracking.testmodel");
 		var metamodel = new MetamodelImpl(config);
 		metamodel.build(new PersistenceUnitClassFinder());
 		strategy = new JopaEntityStrategy(metamodel);

@@ -1,9 +1,9 @@
 package cz.cvut.kbss.changetracking.util;
 
 import cz.cvut.kbss.changetracking.exception.UnsupportedAttributeTypeException;
-import cz.cvut.kbss.changetracking.model.Home;
-import cz.cvut.kbss.changetracking.model.House;
-import cz.cvut.kbss.changetracking.model.UndergraduateStudent;
+import cz.cvut.kbss.changetracking.testmodel.Home;
+import cz.cvut.kbss.changetracking.testmodel.House;
+import cz.cvut.kbss.changetracking.testmodel.UndergraduateStudent;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
