@@ -10,6 +10,10 @@ import java.util.List;
  * Empty implementation of {@link JsonBasedStorageStrategy} for testing purposes.
  */
 public class TestJsonBasedStorageStrategyImpl extends JsonBasedStorageStrategy {
+	public TestJsonBasedStorageStrategyImpl() {
+		super(null);
+	}
+
 	@Override
 	public void save(ChangeVector<?>... vectors) {
 	}

@@ -1,5 +1,6 @@
 package cz.cvut.kbss.changetracking.strategy.storage;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.cvut.kbss.changetracking.model.ChangeVector;
 import cz.cvut.kbss.changetracking.model.JsonChangeVector;
 import org.jetbrains.annotations.Nullable;
@@ -23,6 +24,11 @@ public class JpaStorageStrategy extends JsonBasedStorageStrategy {
 	private final EntityManager em;
 
 	public JpaStorageStrategy(EntityManager em) {
+		this(em, null);
+	}
+
+	public JpaStorageStrategy(EntityManager em, ObjectMapper objectMapper) {
+		super(objectMapper);
 		this.em = em;
 	}
 
