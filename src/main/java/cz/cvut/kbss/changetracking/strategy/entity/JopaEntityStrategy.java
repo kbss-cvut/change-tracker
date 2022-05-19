@@ -77,7 +77,7 @@ public class JopaEntityStrategy extends BaseEntityStrategy<FieldSpecification<?,
 				var val1 = getAttributeValue(attr, older);
 				var val2 = getAttributeValue(attr, newer);
 
-				if (!Objects.equals(val1, val2)) {
+				if (!consideredEqual(val1, val2)) {
 					if (attr instanceof Attribute) {
 						// if ObjectProperty (association), determine the associated entity's (entities') identifier(s)
 						if (((Attribute<?, ?>) attr).isAssociation()) {
@@ -102,6 +102,19 @@ public class JopaEntityStrategy extends BaseEntityStrategy<FieldSpecification<?,
 
 	protected boolean shouldIgnoreChanges(FieldSpecification<?, ?> specification) {
 		return specification.getJavaField().isAnnotationPresent(IgnoreChanges.class);
+	}
+
+	/**
+	 * Returns true if the arguments are either equal or equal in meaning to each other and false otherwise.
+	 * <p>
+	 * This is an extension of {@link Objects#equals(Object, Object)}, taking into account the fact that for JOPA's data,
+	 * an empty set (generified to an empty collection) has the same functional value as a null.
+	 */
+	protected boolean consideredEqual(Object a, Object b) {
+		if (Objects.equals(a, b)) return true;
+
+		return (a instanceof Collection && ((Collection<?>) a).isEmpty() && b == null)
+			|| (b instanceof Collection && ((Collection<?>) b).isEmpty() && a == null);
 	}
 
 	// TODO: refactor to use this from JOPA API as it was just copied
