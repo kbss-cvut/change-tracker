@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class JopaEntityStrategy extends BaseEntityStrategy<FieldSpecification<?, ?>> {
-	private final Metamodel metamodel;
+	protected final Metamodel metamodel;
 
 	public JopaEntityStrategy(Metamodel metamodel) {
 		this.metamodel = metamodel;
@@ -100,12 +100,12 @@ public class JopaEntityStrategy extends BaseEntityStrategy<FieldSpecification<?,
 			.collect(Collectors.toList());
 	}
 
-	private boolean shouldIgnoreChanges(FieldSpecification<?, ?> specification) {
+	protected boolean shouldIgnoreChanges(FieldSpecification<?, ?> specification) {
 		return specification.getJavaField().isAnnotationPresent(IgnoreChanges.class);
 	}
 
 	// TODO: refactor to use this from JOPA API as it was just copied
-	private static final Set<Class<?>> SUPPORTED_IDENTIFIER_TYPES = Set.of(URI.class, URL.class, String.class);
+	protected static final Set<Class<?>> SUPPORTED_IDENTIFIER_TYPES = Set.of(URI.class, URL.class, String.class);
 
 	/**
 	 * Extract an identifier from an associated entity, or multiple identifiers if the association is x-to-many.
@@ -114,7 +114,7 @@ public class JopaEntityStrategy extends BaseEntityStrategy<FieldSpecification<?,
 	 * {@link #SUPPORTED_IDENTIFIER_TYPES}), an actual instance of the target entity class, or a {@link Collection} of
 	 * either of the former.
 	 */
-	private Object extractEntityIdentifier(FieldSpecification<?, ?> attr, Object otherEntity) {
+	protected Object extractEntityIdentifier(FieldSpecification<?, ?> attr, Object otherEntity) {
 		if (otherEntity == null) return null;
 
 		if (otherEntity instanceof Collection) {

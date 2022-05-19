@@ -13,8 +13,8 @@ import java.util.stream.Collectors;
 
 public class ChangeTracker {
 
-	private EntityStrategy entityStrategy;
-	private StorageStrategy storageStrategy;
+	protected EntityStrategy entityStrategy;
+	protected StorageStrategy storageStrategy;
 
 	public ChangeTracker(EntityStrategy entityStrategy, StorageStrategy storageStrategy) {
 		this.entityStrategy = entityStrategy;

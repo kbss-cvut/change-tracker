@@ -20,7 +20,7 @@ import java.util.List;
 public class JpaStorageStrategy extends JsonBasedStorageStrategy {
 
 	@PersistenceContext
-	private final EntityManager em;
+	protected final EntityManager em;
 
 	public JpaStorageStrategy(EntityManager em) {
 		this(em, null);
