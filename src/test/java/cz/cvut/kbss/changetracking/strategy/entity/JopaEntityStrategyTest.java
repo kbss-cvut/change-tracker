@@ -522,6 +522,26 @@ public class JopaEntityStrategyTest {
 		vectorAssert(vecs, TestIRIs.CLASS_SUPERHERO, TestIRIs.INSTANCE_SUPERHERO, TestIRIs.PROPERTY_FIRST_NAME, "Ron");
 	}
 
+	@Test
+	void getChangeVectors_changedFromNullToEmptyCollection_noVectors() {
+		var person1 = new Person(TestIRIs.INSTANCE_MOTHER, "Doe", null);
+		person1.setChildren(null);
+		var person2 = new Person(TestIRIs.INSTANCE_MOTHER, "Doe", null);
+
+		var vecs = strategy.getChangeVectors(person1, person2, true);
+		assertTrue(vecs.isEmpty());
+	}
+
+	@Test
+	void getChangeVectors_changedFromEmptyCollectionToNull_noVectors() {
+		var person1 = new Person(TestIRIs.INSTANCE_MOTHER, "Doe", null);
+		var person2 = new Person(TestIRIs.INSTANCE_MOTHER, "Doe", null);
+		person2.setChildren(null);
+
+		var vecs = strategy.getChangeVectors(person1, person2, true);
+		assertTrue(vecs.isEmpty());
+	}
+
 	// FIXME: this may be semantically wrong
 	@Test
 	void checkClassSupported_classWithoutOWLAnnotation_throwsClassNotAuditedException() {

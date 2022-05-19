@@ -47,4 +47,8 @@ public class Person {
 	public void addChildren(Person... person) {
 		children.addAll(List.of(person));
 	}
+
+	public void setChildren(Set<Person> children) {
+		this.children = children;
+	}
 }
