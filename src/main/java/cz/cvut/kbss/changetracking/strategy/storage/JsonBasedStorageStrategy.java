@@ -10,6 +10,7 @@ import cz.cvut.kbss.changetracking.exception.UnsupportedAttributeTypeException;
 import cz.cvut.kbss.changetracking.model.ChangeVector;
 import cz.cvut.kbss.changetracking.model.JsonChangeVector;
 import cz.cvut.kbss.changetracking.util.ClassUtil;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -21,17 +22,19 @@ import java.util.stream.Collectors;
 public abstract class JsonBasedStorageStrategy implements StorageStrategy {
 	protected final ObjectMapper objectMapper;
 
-	protected JsonBasedStorageStrategy() {
-		objectMapper = new ObjectMapper();
-		objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-	}
-
 	/**
-	 * Register a new JSON deserializer for a type.
+	 * Sole constructor for subclasses.
+	 * @param objectMapper A custom instance of objectMapper to use. If not passed here, a default will be created.
 	 */
-	// TODO: proper generics, once TermIt allows them
-	public void registerDeserializer(Class clazz, StdDeserializer deserializer) {
-		objectMapper.registerModule(new SimpleModule().addDeserializer(clazz, deserializer));
+	protected JsonBasedStorageStrategy(
+		@Nullable ObjectMapper objectMapper
+	) {
+		if (objectMapper != null) {
+			this.objectMapper = objectMapper;
+		} else {
+			this.objectMapper = new ObjectMapper();
+			this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		}
 	}
 
 	/**
