@@ -132,10 +132,11 @@ public class JopaEntityStrategy extends BaseEntityStrategy<FieldSpecification<?,
 
 		if (otherEntity instanceof Collection) {
 			// still might contain either of the other two variants
+			var collector = otherEntity instanceof Set ? Collectors.toSet() : Collectors.toList();
 			return ((Collection<?>) otherEntity)
 				.stream()
 				.map(instance -> extractEntityIdentifier(attr, instance))
-				.collect(Collectors.toList());
+				.collect(collector);
 		} else if (SUPPORTED_IDENTIFIER_TYPES.contains(otherEntity.getClass())) {
 			return otherEntity;
 		} else {

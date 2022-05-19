@@ -460,7 +460,7 @@ public class JopaEntityStrategyTest {
 			TestIRIs.CLASS_PERSON,
 			TestIRIs.INSTANCE_MOTHER,
 			TestIRIs.PROPERTY_OBJECT_HAS_CHILD,
-			List.of(URI.create(childInstanceIri1))
+			Set.of(URI.create(childInstanceIri1))
 		);
 	}
 
