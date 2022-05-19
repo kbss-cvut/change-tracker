@@ -17,16 +17,16 @@ public class ChangeTracker {
 	protected StorageStrategy storageStrategy;
 
 	public ChangeTracker(EntityStrategy entityStrategy, StorageStrategy storageStrategy) {
-		this.entityStrategy = entityStrategy;
-		this.storageStrategy = storageStrategy;
+		this.entityStrategy = Objects.requireNonNull(entityStrategy);
+		this.storageStrategy = Objects.requireNonNull(storageStrategy);
 	}
 
 	public void setClassStrategy(EntityStrategy entityStrategy) {
-		this.entityStrategy = entityStrategy;
+		this.entityStrategy = Objects.requireNonNull(entityStrategy);
 	}
 
 	public void setStorageStrategy(StorageStrategy storageStrategy) {
-		this.storageStrategy = storageStrategy;
+		this.storageStrategy = Objects.requireNonNull(storageStrategy);
 	}
 
 	/**

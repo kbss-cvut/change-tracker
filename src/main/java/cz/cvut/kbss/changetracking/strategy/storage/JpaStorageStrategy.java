@@ -12,6 +12,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * {@link JpaStorageStrategy} is a {@link StorageStrategy} implementation that uses the Java Persistence API for storing
@@ -27,8 +28,8 @@ public class JpaStorageStrategy extends JsonBasedStorageStrategy {
 	}
 
 	public JpaStorageStrategy(EntityManager em, ObjectMapper objectMapper) {
-		super(objectMapper);
-		this.em = em;
+		super(Objects.requireNonNull(objectMapper));
+		this.em = Objects.requireNonNull(em);
 	}
 
 	@Override

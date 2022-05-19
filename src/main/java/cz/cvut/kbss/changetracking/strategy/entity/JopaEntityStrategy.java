@@ -29,7 +29,7 @@ public class JopaEntityStrategy extends BaseEntityStrategy<FieldSpecification<?,
 	protected final Metamodel metamodel;
 
 	public JopaEntityStrategy(Metamodel metamodel) {
-		this.metamodel = metamodel;
+		this.metamodel = Objects.requireNonNull(metamodel);
 	}
 
 	@Override
