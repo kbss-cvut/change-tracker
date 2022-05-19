@@ -17,7 +17,7 @@
 
     <properties>
         <version.java>11</version.java>
-        <version.jopa>0.18.5</version.jopa>
+        <version.jopa>0.18.6</version.jopa>
 
         <maven.compiler.source>${version.java}</maven.compiler.source>
         <maven.compiler.target>${version.java}</maven.compiler.target>
