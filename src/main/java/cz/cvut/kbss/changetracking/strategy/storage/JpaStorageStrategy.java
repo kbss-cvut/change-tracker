@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import cz.cvut.kbss.changetracking.model.ChangeVector;
 import cz.cvut.kbss.changetracking.model.JsonChangeVector;
 import org.jetbrains.annotations.Nullable;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -33,7 +32,6 @@ public class JpaStorageStrategy extends JsonBasedStorageStrategy {
 	}
 
 	@Override
-	@Transactional
 	public void save(ChangeVector<?>... rawVectors) {
 		Arrays
 			.stream(rawVectors)

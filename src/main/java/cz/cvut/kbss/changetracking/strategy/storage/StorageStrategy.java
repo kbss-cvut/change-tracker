@@ -1,7 +1,6 @@
 package cz.cvut.kbss.changetracking.strategy.storage;
 
 import cz.cvut.kbss.changetracking.model.ChangeVector;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
@@ -16,7 +15,6 @@ public interface StorageStrategy {
 	 * @param vectors The change vectors to be persisted.
 	 * @implNote This method is responsible for performing any potentially required serialization.
 	 */
-	@Transactional
 	void save(ChangeVector<?>... vectors);
 
 	/**
@@ -27,7 +25,6 @@ public interface StorageStrategy {
 	 * @return A list of change vectors for the given object, possibly empty, sorted descending by timestamp.
 	 * @apiNote This method is responsible for performing any potentially required deserialization of attribute values.
 	 */
-	@Transactional
 	List<ChangeVector<?>> getAllForObject(String objectType, String objectId);
 
 	/**
@@ -37,7 +34,6 @@ public interface StorageStrategy {
 	 * @return A list of change vectors since the timestamp, possibly empty, sorted descending by timestamp.
 	 * @apiNote This method is responsible for performing any potentially required deserialization of attribute values.
 	 */
-	@Transactional
 	List<ChangeVector<?>> getChangesSince(Instant timestamp);
 
 	/**
@@ -48,6 +44,5 @@ public interface StorageStrategy {
 	 * @return A list of change vectors, possibly empty, sorted descending by timestamp.
 	 * @apiNote This method is responsible for performing any potentially required deserialization of attribute values.
 	 */
-	@Transactional
 	List<ChangeVector<?>> getChangesOfTypeSince(Instant timestamp, String objectType);
 }
