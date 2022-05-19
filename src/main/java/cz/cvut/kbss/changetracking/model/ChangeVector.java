@@ -3,6 +3,7 @@ package cz.cvut.kbss.changetracking.model;
 import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.MappedSuperclass;
 import java.io.Serializable;
 import java.time.Instant;
@@ -22,7 +23,7 @@ public class ChangeVector<T> implements Serializable {
 
 	protected Instant timestamp;
 
-	@Column(columnDefinition = "json")
+	@Column(columnDefinition = "text")
 	protected T previousValue;
 
 	protected String attributeName;
