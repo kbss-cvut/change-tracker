@@ -23,9 +23,14 @@ import java.util.stream.Stream;
 
 public class JopaEntityStrategy extends BaseEntityStrategy<FieldSpecification<?, ?>> {
 	protected final Metamodel metamodel;
+	protected final Map<? extends Class<?>, ? extends EntityType<?>> entityClassMap;
 
 	public JopaEntityStrategy(Metamodel metamodel) {
 		this.metamodel = Objects.requireNonNull(metamodel);
+		this.entityClassMap = metamodel
+			.getEntities()
+			.stream()
+			.collect(Collectors.toMap(Bindable::getBindableJavaType, entity -> entity));
 	}
 
 	@Override
@@ -103,10 +108,24 @@ public class JopaEntityStrategy extends BaseEntityStrategy<FieldSpecification<?,
 	/**
 	 * Returns true if the arguments are either equal or equal in meaning to each other and false otherwise.
 	 * <p>
-	 * This is an extension of {@link Objects#equals(Object, Object)}, taking into account the fact that for JOPA's data,
+	 * In case of JOPA entity instances, this method compares them using their identifiers. Other than that, this method
+	 * is an extension of {@link Objects#equals(Object, Object)}, taking into account the fact that for JOPA's data,
 	 * an empty set (generified to an empty collection) has the same functional value as a null.
+	 *
+	 * @implNote While {@link #entityClassMap} could be passed as an argument here, it is left as an instance variable.
+	 * The only reason to pass the map as an argument (and regenerate it every time {@link #getChangeVectors} runs) would
+	 * be to make sure runtime additions/removals/changes of the metamodel-tracked entities would be taken into account.
+	 * These runtime changes are extremely unlikely (borderline impossible) and do not justify the performance penalty.
 	 */
 	protected boolean consideredEqual(Object a, Object b) {
+		if (a != null && b != null) {
+			var aClass = a.getClass();
+			var bClass = b.getClass();
+			if (entityClassMap.containsKey(aClass) && entityClassMap.containsKey(bClass)) {
+				return getAttributeValue(entityClassMap.get(aClass).getIdentifier(), a)
+					.equals(getAttributeValue(entityClassMap.get(bClass).getIdentifier(), b));
+			}
+		}
 		if (Objects.equals(a, b)) return true;
 
 		return (a instanceof Collection && ((Collection<?>) a).isEmpty() && b == null)
