@@ -10,7 +10,6 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.Predicate;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -33,20 +32,8 @@ public class JpaStorageStrategy extends JsonBasedStorageStrategy {
 	}
 
 	@Override
-	public void save(ChangeVector<?>... rawVectors) {
-		Arrays
-			.stream(rawVectors)
-			.map(vector -> {
-				var value = vector.getPreviousValue();
-				var valueClass = value == null ? Object.class : value.getClass();
-
-				return new JsonChangeVector(
-					vector,
-					valueClass,
-					convertValueToJson(value)
-				);
-			})
-			.forEach(em::persist);
+	protected void saveVector(JsonChangeVector vector) {
+		em.persist(vector);
 	}
 
 	@Override

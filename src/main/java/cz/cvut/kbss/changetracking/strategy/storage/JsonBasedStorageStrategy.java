@@ -3,8 +3,6 @@ package cz.cvut.kbss.changetracking.strategy.storage;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import cz.cvut.kbss.changetracking.exception.JsonException;
 import cz.cvut.kbss.changetracking.exception.UnsupportedAttributeTypeException;
 import cz.cvut.kbss.changetracking.model.ChangeVector;
@@ -12,7 +10,9 @@ import cz.cvut.kbss.changetracking.model.JsonChangeVector;
 import cz.cvut.kbss.changetracking.util.ClassUtil;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -37,6 +37,29 @@ public abstract class JsonBasedStorageStrategy implements StorageStrategy {
 		}
 	}
 
+	@Override
+	public void save(ChangeVector<?>... rawVectors) {
+		Arrays
+			.stream(rawVectors)
+			.map(vector -> {
+				var value = vector.getPreviousValue();
+				var valueClass = value == null ? Object.class : value.getClass();
+
+				return new JsonChangeVector(
+					vector,
+					valueClass,
+					convertValueToJson(value)
+				);
+			})
+			.forEach(this::saveVector);
+	}
+
+	/**
+	 * Save a JSON change vector to the database.
+	 * @param vector The vector to save.
+	 */
+	protected abstract void saveVector(JsonChangeVector vector);
+
 	/**
 	 * Convert vectors from {@link JsonChangeVector} to {@link ChangeVector}, i.e. convert their previousValues
 	 * from JSON back to their original types.
@@ -46,7 +69,7 @@ public abstract class JsonBasedStorageStrategy implements StorageStrategy {
 	 * @throws cz.cvut.kbss.changetracking.exception.JsonException Based on
 	 * {@link JpaStorageStrategy#convertValueFromJson}.
 	 */
-	List<ChangeVector<?>> convertVectorsFromJson(List<JsonChangeVector> jsonList) {
+	protected List<ChangeVector<?>> convertVectorsFromJson(List<JsonChangeVector> jsonList) {
 		return jsonList.stream().map(jsonVector -> new ChangeVector<>(
 			jsonVector,
 			convertValueFromJson(jsonVector.getAttributeType(), jsonVector.getPreviousValue())
@@ -60,7 +83,7 @@ public abstract class JsonBasedStorageStrategy implements StorageStrategy {
 	 * @return A JSON representation of the value.
 	 * @throws cz.cvut.kbss.changetracking.exception.JsonException When conversion to JSON fails.
 	 */
-	String convertValueToJson(Object object) {
+	protected String convertValueToJson(Object object) {
 		try {
 			return objectMapper.writeValueAsString(object);
 		} catch (JsonProcessingException e) {
@@ -78,7 +101,7 @@ public abstract class JsonBasedStorageStrategy implements StorageStrategy {
 	 * @throws JsonException When conversion from JSON fails, for example if the class is not supported.
 	 * @throws UnsupportedAttributeTypeException When the target class can't be found.
 	 */
-	Object convertValueFromJson(String type, String json) {
+	protected Object convertValueFromJson(String type, String json) {
 		try {
 			var arrayClassOptional = ClassUtil.getArrayClassByName(type);
 			if (arrayClassOptional.isPresent()) {

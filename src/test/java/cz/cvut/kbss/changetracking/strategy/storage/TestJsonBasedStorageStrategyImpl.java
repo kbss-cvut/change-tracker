@@ -1,6 +1,7 @@
 package cz.cvut.kbss.changetracking.strategy.storage;
 
 import cz.cvut.kbss.changetracking.model.ChangeVector;
+import cz.cvut.kbss.changetracking.model.JsonChangeVector;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -15,7 +16,7 @@ public class TestJsonBasedStorageStrategyImpl extends JsonBasedStorageStrategy {
 	}
 
 	@Override
-	public void save(ChangeVector<?>... vectors) {
+	protected void saveVector(JsonChangeVector vector) {
 	}
 
 	@Override
