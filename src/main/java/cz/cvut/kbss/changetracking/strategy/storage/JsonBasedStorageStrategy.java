@@ -92,8 +92,7 @@ public abstract class JsonBasedStorageStrategy implements StorageStrategy {
 	}
 
 	/**
-	 * Convert a value from JSON to the original type. If the type is understood as an array, a {@link Collection} will
-	 * be returned.
+	 * Convert a value from JSON to the original type.
 	 *
 	 * @param type Fully qualified class name of the type.
 	 * @param json JSON representation of the value.
