@@ -8,13 +8,12 @@ import cz.cvut.kbss.changetracking.exception.IdNotMatchingException;
 import cz.cvut.kbss.changetracking.exception.ObjectsNotCompatibleException;
 import cz.cvut.kbss.changetracking.model.ChangeVector;
 import cz.cvut.kbss.changetracking.util.ClassUtil;
+import cz.cvut.kbss.jopa.model.PersistenceProperties;
 import cz.cvut.kbss.jopa.model.annotations.OWLClass;
 import cz.cvut.kbss.jopa.model.metamodel.*;
 import cz.cvut.kbss.jopa.vocabulary.RDF;
 import org.jetbrains.annotations.NotNull;
 
-import java.net.URI;
-import java.net.URL;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
@@ -114,15 +113,12 @@ public class JopaEntityStrategy extends BaseEntityStrategy<FieldSpecification<?,
 			|| (b instanceof Collection && ((Collection<?>) b).isEmpty() && a == null);
 	}
 
-	// TODO: refactor to use this from JOPA API as it was just copied
-	protected static final Set<Class<?>> SUPPORTED_IDENTIFIER_TYPES = Set.of(URI.class, URL.class, String.class);
-
 	/**
 	 * Extract an identifier from an associated entity, or multiple identifiers if the association is x-to-many.
 	 *
 	 * @param otherEntity Might in fact be any identifier type supported by JOPA (that being
-	 * {@link #SUPPORTED_IDENTIFIER_TYPES}), an actual instance of the target entity class, or a {@link Collection} of
-	 * either of the former.
+	 * {@link PersistenceProperties#IDENTIFIER_TYPES}), an actual instance of the target entity class, or a
+	 * {@link Collection} of either of the former.
 	 */
 	protected Object extractEntityIdentifier(FieldSpecification<?, ?> attr, Object otherEntity) {
 		if (otherEntity == null) return null;
@@ -134,7 +130,7 @@ public class JopaEntityStrategy extends BaseEntityStrategy<FieldSpecification<?,
 				.stream()
 				.map(instance -> extractEntityIdentifier(attr, instance))
 				.collect(collector);
-		} else if (SUPPORTED_IDENTIFIER_TYPES.contains(otherEntity.getClass())) {
+		} else if (PersistenceProperties.IDENTIFIER_TYPES.contains(otherEntity.getClass())) {
 			return otherEntity;
 		} else {
 			// entity instance
