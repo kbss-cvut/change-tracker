@@ -1,9 +1,9 @@
 package cz.cvut.kbss.changetracking.model;
 
+import cz.cvut.kbss.jopa.model.annotations.OWLClass;
 import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.Column;
-import javax.persistence.Convert;
 import javax.persistence.MappedSuperclass;
 import java.io.Serializable;
 import java.time.Instant;
@@ -19,6 +19,7 @@ import java.util.Objects;
  * classes to inherit from it.
  */
 @MappedSuperclass
+@OWLClass(iri = "http://onto.fel.cvut.cz/ontologies/slovn\u00edk/agendov\u00fd/popis-dat/pojem/zm\u011bna")
 public class ChangeVector<T> implements Serializable {
 
 	protected Instant timestamp;
