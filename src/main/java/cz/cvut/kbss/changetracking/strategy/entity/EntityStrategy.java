@@ -6,8 +6,6 @@ import java.util.Collection;
 
 /**
  * Entity class management strategy.
- * <p>
- * TODO: rename (EntityComparisonStrategy?)
  */
 public interface EntityStrategy {
 

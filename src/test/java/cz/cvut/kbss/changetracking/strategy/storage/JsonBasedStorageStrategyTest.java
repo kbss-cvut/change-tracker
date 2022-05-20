@@ -17,7 +17,6 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.*;
 
 class JsonBasedStorageStrategyTest {
-	// TODO: implement tests using Spring Boot
 	JsonBasedStorageStrategy strategy = new TestJsonBasedStorageStrategyImpl();
 	static ObjectMapper mapper = new ObjectMapper();
 

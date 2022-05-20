@@ -279,7 +279,6 @@ public class JopaEntityStrategyTest {
 			TestIRIs.CLASS_SUPERHERO,
 			TestIRIs.INSTANCE_SUPERHERO,
 			TestIRIs.PROPERTY_GOOD_GUY,
-			// TODO: make it not require the toString()
 			Collections.singleton(Boolean.TRUE.toString())
 		);
 	}
@@ -318,7 +317,6 @@ public class JopaEntityStrategyTest {
 			TestIRIs.CLASS_SUPERHERO,
 			TestIRIs.INSTANCE_SUPERHERO,
 			TestIRIs.PROPERTY_GOOD_GUY,
-			// TODO: make it not require the toString()
 			Collections.singleton(Boolean.FALSE.toString())
 		);
 	}
@@ -346,7 +344,6 @@ public class JopaEntityStrategyTest {
 			TestIRIs.CLASS_SUPERHERO,
 			TestIRIs.INSTANCE_SUPERHERO,
 			TestIRIs.PROPERTY_GOOD_GUY,
-			// TODO: make it not require the toString()
 			Collections.singleton(Boolean.FALSE.toString())
 		);
 	}
@@ -543,7 +540,6 @@ public class JopaEntityStrategyTest {
 		assertTrue(vecs.isEmpty());
 	}
 
-	// FIXME: this may be semantically wrong
 	@Test
 	void checkClassSupported_classWithoutOWLAnnotation_throwsClassNotAuditedException() {
 		AuditedCourse course = new AuditedCourse();

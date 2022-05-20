@@ -13,15 +13,11 @@ public class ClassUtil {
 		final Set<Class<?>> result = new LinkedHashSet<>();
 		final Queue<Class<?>> queue = new ArrayDeque<>();
 		queue.add(clazz);
-		/*if (clazz.isInterface()) {
-			queue.add(Object.class); // optional
-		}*/
 		while (!queue.isEmpty()) {
 			Class<?> c = queue.remove();
 			if (result.add(c)) {
 				Class<?> sup = c.getSuperclass();
 				if (sup != null) queue.add(sup);
-				//queue.addAll(Arrays.asList(c.getInterfaces()));
 			}
 		}
 		return result;
