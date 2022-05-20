@@ -67,7 +67,7 @@ public class JopaEntityStrategy extends BaseEntityStrategy<FieldSpecification<?,
 		return fieldSpecs
 			.stream()
 			.flatMap(attr -> {
-				if (attr.isInferred() || shouldIgnoreChanges(attr))
+				if (shouldIgnoreChanges(attr))
 					return null;
 
 				var val1 = getAttributeValue(attr, older);
@@ -97,7 +97,7 @@ public class JopaEntityStrategy extends BaseEntityStrategy<FieldSpecification<?,
 	}
 
 	protected boolean shouldIgnoreChanges(FieldSpecification<?, ?> specification) {
-		return specification.getJavaField().isAnnotationPresent(IgnoreChanges.class);
+		return specification.isInferred() || specification.getJavaField().isAnnotationPresent(IgnoreChanges.class);
 	}
 
 	/**
