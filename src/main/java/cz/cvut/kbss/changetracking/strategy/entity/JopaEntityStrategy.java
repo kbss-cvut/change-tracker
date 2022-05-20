@@ -122,8 +122,10 @@ public class JopaEntityStrategy extends BaseEntityStrategy<FieldSpecification<?,
 			var aClass = a.getClass();
 			var bClass = b.getClass();
 			if (entityClassMap.containsKey(aClass) && entityClassMap.containsKey(bClass)) {
-				return getAttributeValue(entityClassMap.get(aClass).getIdentifier(), a)
-					.equals(getAttributeValue(entityClassMap.get(bClass).getIdentifier(), b));
+				return Objects.equals(
+					getAttributeValue(entityClassMap.get(aClass).getIdentifier(), a),
+					getAttributeValue(entityClassMap.get(bClass).getIdentifier(), b)
+				);
 			}
 		}
 		if (Objects.equals(a, b)) return true;
