@@ -4,6 +4,9 @@ ChangeTracking
 This is a domain object change tracking library. It is primarily intended to be used with
 [JOPA](https://github.com/kbss-cvut/jopa) entities.
 
+An example integration with the [TermIt terminology manager](https://github.com/kbss-cvut/termit) is available in [a
+separate repository](https://github.com/HolecekM/termit/tree/feat/changetracking_dev).
+
 Usage
 ===
 
@@ -18,7 +21,7 @@ var tracker = new ChangeTracker(
 	new JpaStorageStrategy(jpaEntityManager)
 );
 ```
-2. When saving an entity, first get its old version and then call `tracker.compareAndSave(old, newer)`. Changes
+2. When saving an entity, first get its old version and then call `tracker.compareAndSave(old, newer, changes)`. Changes
    between the two revisions of the entity will be saved as change vectors in the database (interfaced with using
    the jpaEntityManager passed to JpaStorageStrategy). Don't forget to also save the entity itself!
 3. When looking for changes, use one of the following methods:
