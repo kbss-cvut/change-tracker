@@ -1,16 +1,11 @@
-package cz.cvut.kbss.changetracking.annotation;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package cz.cvut.kbss.changetracking.annotation
 
 /**
- * Marks fields whose changes in an {@link Audited} instance should be ignored.
- * <p>
+ * Marks fields whose changes in an [Audited] instance should be ignored.
+ *
+ *
  * This allows to exclude certain attributes (e.g., provenance data) from change tracking.
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD)
-public @interface IgnoreChanges {
-}
+@Retention(AnnotationRetention.RUNTIME)
+@Target(AnnotationTarget.FIELD)
+annotation class IgnoreChanges

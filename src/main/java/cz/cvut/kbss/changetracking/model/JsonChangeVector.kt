@@ -1,54 +1,42 @@
-package cz.cvut.kbss.changetracking.model;
+package cz.cvut.kbss.changetracking.model
 
-import org.jetbrains.annotations.NotNull;
-
-import javax.persistence.*;
+import javax.persistence.*
 
 /**
- * {@link JsonChangeVector} is the change vector entity class, representing a single change to an audited object. The
+ * [JsonChangeVector] is the change vector entity class, representing a single change to an audited object. The
  * previous value of the changed attribute is encoded as JSON for easy storage in both relational databases and MongoDB,
  * for example.
  *
- * @apiNote This class should not be directly used to read previous values! Use {@link ChangeVector} instead.
+ * @apiNote This class should not be directly used to read previous values! Use [ChangeVector] instead.
  */
 @Entity
 @Table(name = "change_vector")
-public class JsonChangeVector extends ChangeVector<String> {
+open class JsonChangeVector : ChangeVector<String> {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	protected Long id;
+	var id: Long? = null
+		private set
 
-	protected String attributeType;
+	var attributeType: String? = null
 
-	public JsonChangeVector(
-		@NotNull ChangeVector<?> vector,
-		@NotNull Class<?> attributeClass,
-		@NotNull String previousValueJson
+	constructor(
+		vector: ChangeVector<*>,
+		attributeClass: Class<*>,
+		previousValueJson: String
+	) : super(
+		vector.objectType,
+		vector.objectId,
+		vector.attributeName,
+		previousValueJson,
+		vector.timestamp,
 	) {
-		super(
-			vector.getObjectType(),
-			vector.getObjectId(),
-			vector.getAttributeName(),
-			previousValueJson,
-			vector.getTimestamp()
-		);
-		this.authorId = vector.authorId;
-		this.attributeType = attributeClass.getName();
+		authorId = vector.authorId
+		attributeType = attributeClass.name
 	}
 
-	public JsonChangeVector() {
-	}
+	constructor()
 
-	public Long getId() {
-		return id;
-	}
-
-	public String getAttributeType() {
-		return attributeType;
-	}
-
-	@Override
-	public String toString() {
+	override fun toString(): String {
 		return "JsonChangeVector{" +
 			"timestamp=" + timestamp +
 			", previousValue=" + previousValue +
@@ -57,6 +45,6 @@ public class JsonChangeVector extends ChangeVector<String> {
 			", objectId='" + objectId + '\'' +
 			", id=" + id +
 			", attributeType='" + attributeType + '\'' +
-			'}';
+			'}'
 	}
 }

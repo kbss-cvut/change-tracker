@@ -1,110 +1,64 @@
-package cz.cvut.kbss.changetracking.model;
+package cz.cvut.kbss.changetracking.model
 
-import cz.cvut.kbss.jopa.model.annotations.OWLClass;
-import org.jetbrains.annotations.NotNull;
-
-import javax.persistence.Column;
-import javax.persistence.MappedSuperclass;
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.Objects;
+import cz.cvut.kbss.jopa.model.annotations.OWLClass
+import java.io.Serializable
+import java.time.Instant
+import java.util.*
+import javax.persistence.Column
+import javax.persistence.MappedSuperclass
 
 /**
- * {@link ChangeVector} is the change vector representation to be used by the client application. Instances of this
- * class already had their {@link ChangeVector#getPreviousValue()} converted from its database representation to the
+ * [ChangeVector] is the change vector representation to be used by the client application. Instances of this
+ * class already had their [ChangeVector.previousValue] converted from its database representation to the
  * original type (if applicable).
  *
- * @param <T> Type of the {@link ChangeVector#previousValue} field.
+ * @param <T> Type of the [ChangeVector.previousValue] field.
  * @apiNote This is NOT a database entity by itself! It however has to bear JPA annotations to allow JPA entity
  * classes to inherit from it.
- */
+</T> */
 @MappedSuperclass
 @OWLClass(iri = "http://onto.fel.cvut.cz/ontologies/slovn\u00edk/agendov\u00fd/popis-dat/pojem/zm\u011bna")
-public class ChangeVector<T> implements Serializable {
-
-	protected Instant timestamp;
+open class ChangeVector<T> : Serializable {
 
 	@Column(columnDefinition = "text")
-	protected T previousValue;
+	var previousValue: T? = null
+	lateinit var attributeName: String
+	lateinit var objectType: String
+	lateinit var objectId: String
+	var authorId: String? = null
+	lateinit var timestamp: Instant
 
-	protected String attributeName;
-
-	protected String objectType;
-
-	protected String objectId;
-
-	protected String authorId;
-
-	public ChangeVector(
-		@NotNull JsonChangeVector vector,
-		T previousValue
+	constructor(
+		vector: JsonChangeVector,
+		previousValue: T
+	) : this(
+		vector.objectType,
+		vector.objectId,
+		vector.attributeName,
+		previousValue,
+		vector.timestamp
 	) {
-		this(
-			vector.getObjectType(),
-			vector.getObjectId(),
-			vector.getAttributeName(),
-			previousValue,
-			vector.getTimestamp()
-		);
-		this.authorId = vector.authorId;
+		authorId = vector.authorId
 	}
 
-	public ChangeVector(
-		@NotNull String objectType,
-		@NotNull String objectId,
-		@NotNull String attributeName,
-		T previousValue
+	@JvmOverloads
+	constructor(
+		objectType: String,
+		objectId: String,
+		attributeName: String,
+		previousValue: T?,
+		timestamp: Instant = Instant.now()
 	) {
-		this(objectType, objectId, attributeName, previousValue, Instant.now());
+		this.objectType = objectType
+		this.objectId = objectId
+		this.attributeName = attributeName
+		this.previousValue = previousValue
+		this.timestamp = timestamp
 	}
 
-	public ChangeVector(
-		@NotNull String objectType,
-		@NotNull String objectId,
-		@NotNull String attributeName,
-		T previousValue,
-		@NotNull Instant timestamp
-	) {
-		this.objectType = objectType;
-		this.objectId = objectId;
-		this.attributeName = attributeName;
-		this.previousValue = previousValue;
-		this.timestamp = timestamp;
-	}
+	constructor()
 
-	public ChangeVector() {
-	}
-
-	public Instant getTimestamp() {
-		return timestamp;
-	}
-
-	public T getPreviousValue() {
-		return previousValue;
-	}
-
-	public String getAttributeName() {
-		return attributeName;
-	}
-
-	public String getObjectType() {
-		return objectType;
-	}
-
-	public String getObjectId() {
-		return objectId;
-	}
-
-	public String getAuthorId() {
-		return authorId;
-	}
-
-	public void setAuthorId(String authorId) {
-		this.authorId = authorId;
-	}
-
-	@Override
-	public String toString() {
+	override fun toString(): String {
 		return "ChangeVector{" +
 			"timestamp=" + timestamp +
 			", previousValue=" + previousValue +
@@ -112,24 +66,17 @@ public class ChangeVector<T> implements Serializable {
 			", objectType='" + objectType + '\'' +
 			", objectId='" + objectId + '\'' +
 			", authorId='" + authorId + '\'' +
-			'}';
+			'}'
 	}
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (!(o instanceof ChangeVector)) return false;
-		ChangeVector<?> that = (ChangeVector<?>) o;
-		return timestamp.equals(that.timestamp)
-			&& Objects.equals(previousValue, that.previousValue)
-			&& attributeName.equals(that.attributeName)
-			&& objectType.equals(that.objectType)
-			&& objectId.equals(that.objectId)
-			&& Objects.equals(authorId, that.authorId);
+	override fun equals(other: Any?): Boolean {
+		if (this === other) return true
+		if (other !is ChangeVector<*>) return false
+		return (timestamp == other.timestamp && previousValue == other.previousValue
+			&& attributeName == other.attributeName && objectType == other.objectType && objectId == other.objectId && authorId == other.authorId)
 	}
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(timestamp, previousValue, attributeName, objectType, objectId, authorId);
+	override fun hashCode(): Int {
+		return Objects.hash(timestamp, previousValue, attributeName, objectType, objectId, authorId)
 	}
 }

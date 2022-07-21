@@ -1,21 +1,19 @@
-package cz.cvut.kbss.changetracking.strategy.storage;
+package cz.cvut.kbss.changetracking.strategy.storage
 
-import cz.cvut.kbss.changetracking.model.ChangeVector;
-
-import java.time.Instant;
-import java.util.List;
+import cz.cvut.kbss.changetracking.model.ChangeVector
+import java.time.Instant
 
 /**
  * Strategy for storing and accessing change vectors.
  */
-public interface StorageStrategy {
+interface StorageStrategy {
 	/**
 	 * Persist the provided change vectors to the underlying store.
 	 *
 	 * @param vectors The change vectors to be persisted.
 	 * @implNote This method is responsible for performing any potentially required serialization.
 	 */
-	void save(ChangeVector<?>... vectors);
+	fun save(vararg vectors: ChangeVector<*>)
 
 	/**
 	 * Get all change vectors for an object identified by its type and ID.
@@ -25,7 +23,7 @@ public interface StorageStrategy {
 	 * @return A list of change vectors for the given object, possibly empty, sorted descending by timestamp.
 	 * @apiNote This method is responsible for performing any potentially required deserialization of attribute values.
 	 */
-	List<ChangeVector<?>> getAllForObject(String objectType, String objectId);
+	fun getAllForObject(objectType: String, objectId: String): List<ChangeVector<*>>
 
 	/**
 	 * Get all change vectors since a timestamp (inclusive).
@@ -34,15 +32,15 @@ public interface StorageStrategy {
 	 * @return A list of change vectors since the timestamp, possibly empty, sorted descending by timestamp.
 	 * @apiNote This method is responsible for performing any potentially required deserialization of attribute values.
 	 */
-	List<ChangeVector<?>> getChangesSince(Instant timestamp);
+	fun getChangesSince(timestamp: Instant): List<ChangeVector<*>>
 
 	/**
 	 * Get all changed objects of a given type since a timestamp (inclusive).
 	 *
 	 * @param timestamp  Inclusive lower boundary of change vectors returned.
-	 * @param objectType String representation of the objects' type.
+	 * @param objectType Nullable string representation of the objects' type.
 	 * @return A list of change vectors, possibly empty, sorted descending by timestamp.
 	 * @apiNote This method is responsible for performing any potentially required deserialization of attribute values.
 	 */
-	List<ChangeVector<?>> getChangesOfTypeSince(Instant timestamp, String objectType);
+	fun getChangesOfTypeSince(timestamp: Instant, objectType: String?): List<ChangeVector<*>>
 }

@@ -1,94 +1,98 @@
-package cz.cvut.kbss.changetracking.util;
+package cz.cvut.kbss.changetracking.util
 
-import cz.cvut.kbss.changetracking.exception.UnsupportedAttributeTypeException;
-
-import java.lang.reflect.Array;
-import java.util.*;
+import cz.cvut.kbss.changetracking.exception.UnsupportedAttributeTypeException
+import java.lang.reflect.Array.newInstance
+import java.util.*
 
 /**
- * Adapted from <a href="https://stackoverflow.com/a/18606772">source: SO</a>.
+ * Adapted from [source: SO](https://stackoverflow.com/a/18606772).
  */
-public class ClassUtil {
-	private static Set<Class<?>> getSuperclasses(Class<?> clazz) {
-		final Set<Class<?>> result = new LinkedHashSet<>();
-		final Queue<Class<?>> queue = new ArrayDeque<>();
-		queue.add(clazz);
+object ClassUtil {
+	private fun getSuperclasses(clazz: Class<*>): MutableSet<Class<*>> {
+		val result: MutableSet<Class<*>> = LinkedHashSet()
+		val queue: Queue<Class<*>> = ArrayDeque()
+		queue.add(clazz)
 		while (!queue.isEmpty()) {
-			Class<?> c = queue.remove();
+			val c = queue.remove()
 			if (result.add(c)) {
-				Class<?> sup = c.getSuperclass();
-				if (sup != null) queue.add(sup);
+				val sup = c.superclass
+				if (sup != null) queue.add(sup)
 			}
 		}
-		return result;
+		return result
 	}
 
-	private static Set<Class<?>> commonSuperclasses(Class<?> class1, Class<?> class2) {
+	private fun commonSuperclasses(class1: Class<*>, class2: Class<*>): Set<Class<*>> {
 		// begin with set from first hierarchy
-		Set<Class<?>> result = getSuperclasses(class1);
+		val result = getSuperclasses(class1)
 		// remove non-superclasses of remaining
-		result.removeIf(sup -> !sup.isAssignableFrom(class2));
-		return result;
+		result.removeIf { sup: Class<*> -> !sup.isAssignableFrom(class2) }
+		return result
 	}
 
-
-	public static Optional<Class<?>> getCommonSuperclass(Class<?> class1, Class<?> class2) {
-		var x = lowestClasses(commonSuperclasses(class1, class2));
-		if (x.size() != 1) return Optional.empty(); // something is wrong
-
-		var superclass = x.get(0);
-		if (Object.class.equals(superclass)) return Optional.empty();
-
-		return Optional.of(superclass);
+	@JvmStatic
+	fun getCommonSuperclass(class1: Class<*>, class2: Class<*>): Optional<Class<*>> {
+		val x = lowestClasses(commonSuperclasses(class1, class2))
+		if (x.size != 1) return Optional.empty() // something is wrong
+		val superclass = x[0]
+		return if (Any::class.java == superclass) Optional.empty() else Optional.of(superclass)
 	}
 
-	private static List<Class<?>> lowestClasses(Collection<Class<?>> classes) {
-		final LinkedList<Class<?>> source = new LinkedList<>(classes);
-		final ArrayList<Class<?>> result = new ArrayList<>(classes.size());
+	@JvmStatic
+	private fun lowestClasses(classes: Collection<Class<*>>): List<Class<*>> {
+		val source = LinkedList(classes)
+		val result = ArrayList<Class<*>>(classes.size)
 		while (!source.isEmpty()) {
-			Iterator<Class<?>> srcIt = source.iterator();
-			Class<?> c = srcIt.next();
-			srcIt.remove();
+			val srcIt = source.iterator()
+			var c = srcIt.next()
+			srcIt.remove()
 			while (srcIt.hasNext()) {
-				Class<?> c2 = srcIt.next();
+				val c2 = srcIt.next()
 				if (c2.isAssignableFrom(c)) {
-					srcIt.remove();
+					srcIt.remove()
 				} else if (c.isAssignableFrom(c2)) {
-					c = c2;
-					srcIt.remove();
+					c = c2
+					srcIt.remove()
 				}
 			}
-			result.add(c);
+			result.add(c)
 		}
-		result.trimToSize();
-		return result;
+		result.trimToSize()
+		return result
 	}
 
 	/**
-	 * For example: get an {@link Optional} of the {@code String[]} class for {@code "java.lang.String[]"} or an
-	 * empty Optional for {@code "java.lang.String"}. This uses a naive method: simply checks if the last two
+	 * For example: get an [Optional] of the `String[]` class for `"java.lang.String[]"` or an
+	 * empty Optional for `"java.lang.String"`. This uses a naive method: simply checks if the last two
 	 * characters of the class are "[]".
 	 *
 	 * @throws UnsupportedAttributeTypeException When the target class fails can't be found.
 	 * @implNote The double cast is necessary to ensure the correct return type.
 	 */
-	@SuppressWarnings("unchecked")
-	public static <T> Optional<Class<T[]>> getArrayClassByName(String className) {
-		if ("[]".equals(className.substring(className.length() - 2))) {
+	@JvmStatic
+	@Suppress("UNCHECKED_CAST")
+	fun <T> getArrayClassByName(className: String): Optional<Class<Array<T>>> {
+		return if ("[]" == className.substring(className.length - 2)) {
 			try {
-				return Optional.of((Class<T[]>) ((Class<?>) getArrayClassFromSingular(Class.forName(className.substring(
-					0,
-					className.length() - 2
-				)))));
-			} catch (ClassNotFoundException e) {
-				throw new UnsupportedAttributeTypeException(className);
+				Optional.of(
+					getArrayClassFromSingular(
+						Class.forName(
+							className.substring(
+								0,
+								className.length - 2
+							)
+						)
+					) as Class<Array<T>>
+				)
+			} catch (e: ClassNotFoundException) {
+				throw UnsupportedAttributeTypeException(className)
 			}
-		}
-		return Optional.empty();
+		} else Optional.empty()
 	}
 
-	@SuppressWarnings("unchecked")
-	public static <T> Class<T[]> getArrayClassFromSingular(Class<T> target) {
-		return (Class<T[]>) Array.newInstance(target, 0).getClass();
+	@JvmStatic
+	@Suppress("UNCHECKED_CAST")
+	fun <T> getArrayClassFromSingular(target: Class<T>?): Class<Array<T>> {
+		return newInstance(target, 0).javaClass as Class<Array<T>>
 	}
 }

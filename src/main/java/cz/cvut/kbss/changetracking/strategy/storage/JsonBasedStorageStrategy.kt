@@ -1,93 +1,74 @@
-package cz.cvut.kbss.changetracking.strategy.storage;
+package cz.cvut.kbss.changetracking.strategy.storage
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import cz.cvut.kbss.changetracking.exception.JsonException;
-import cz.cvut.kbss.changetracking.exception.UnsupportedAttributeTypeException;
-import cz.cvut.kbss.changetracking.model.ChangeVector;
-import cz.cvut.kbss.changetracking.model.JsonChangeVector;
-import cz.cvut.kbss.changetracking.util.ClassUtil;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.core.JsonProcessingException
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.ObjectMapper
+import cz.cvut.kbss.changetracking.exception.JsonException
+import cz.cvut.kbss.changetracking.exception.UnsupportedAttributeTypeException
+import cz.cvut.kbss.changetracking.model.ChangeVector
+import cz.cvut.kbss.changetracking.model.JsonChangeVector
+import cz.cvut.kbss.changetracking.util.ClassUtil
 
 /**
- * {@link StorageStrategy} contains code to be reused by all storage strategies that use JSON as the serialization
+ * [StorageStrategy] contains code to be reused by all storage strategies that use JSON as the serialization
  * format for attribute values.
+ *
+ * @constructor Sole constructor for subclasses.
+ * @param objectMapper A custom instance of objectMapper to use. If not passed here, a default will be created.
  */
-public abstract class JsonBasedStorageStrategy implements StorageStrategy {
-	protected final ObjectMapper objectMapper;
+abstract class JsonBasedStorageStrategy protected constructor(
+	objectMapper: ObjectMapper?
+) : StorageStrategy {
+	protected val objectMapper: ObjectMapper
 
-	/**
-	 * Sole constructor for subclasses.
-	 * @param objectMapper A custom instance of objectMapper to use. If not passed here, a default will be created.
-	 */
-	protected JsonBasedStorageStrategy(
-		@Nullable ObjectMapper objectMapper
-	) {
+	init {
 		if (objectMapper != null) {
-			this.objectMapper = objectMapper;
+			this.objectMapper = objectMapper
 		} else {
-			this.objectMapper = new ObjectMapper();
-			this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+			this.objectMapper = ObjectMapper()
+			this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 		}
 	}
 
-	@Override
-	public void save(ChangeVector<?>... rawVectors) {
-		Arrays
-			.stream(rawVectors)
-			.map(vector -> {
-				var value = vector.getPreviousValue();
-				var valueClass = value == null ? Object.class : value.getClass();
-
-				return new JsonChangeVector(
-					vector,
-					valueClass,
-					convertValueToJson(value)
-				);
-			})
-			.forEach(this::saveVector);
+	override fun save(vararg vectors: ChangeVector<*>) {
+		vectors.map {
+			val value = it.previousValue
+			val valueClass = value?.javaClass ?: Any::class.java
+			return@map JsonChangeVector(it, valueClass, convertValueToJson(value))
+		}.forEach(::saveVector)
 	}
 
 	/**
 	 * Save a JSON change vector to the database.
 	 * @param vector The vector to save.
 	 */
-	protected abstract void saveVector(JsonChangeVector vector);
+	protected abstract fun saveVector(vector: JsonChangeVector)
 
 	/**
-	 * Convert vectors from {@link JsonChangeVector} to {@link ChangeVector}, i.e. convert their previousValues
+	 * Convert vectors from [JsonChangeVector] to [ChangeVector], i.e. convert their previousValues
 	 * from JSON back to their original types.
 	 *
 	 * @param jsonList The list of vectors to convert.
 	 * @return Vectors with proper values.
 	 * @throws cz.cvut.kbss.changetracking.exception.JsonException Based on
-	 * {@link JpaStorageStrategy#convertValueFromJson}.
+	 * [JpaStorageStrategy.convertValueFromJson].
 	 */
-	protected List<ChangeVector<?>> convertVectorsFromJson(List<JsonChangeVector> jsonList) {
-		return jsonList.stream().map(jsonVector -> new ChangeVector<>(
-			jsonVector,
-			convertValueFromJson(jsonVector.getAttributeType(), jsonVector.getPreviousValue())
-		)).collect(Collectors.toList());
+	protected fun convertVectorsFromJson(jsonList: List<JsonChangeVector>): List<ChangeVector<*>> {
+		return jsonList.map { ChangeVector(it, convertValueFromJson(it.attributeType!!, it.previousValue!!)) }
 	}
 
 	/**
 	 * Convert a value into JSON.
 	 *
-	 * @param object object The value.
+	 * @param obj object The value.
 	 * @return A JSON representation of the value.
 	 * @throws cz.cvut.kbss.changetracking.exception.JsonException When conversion to JSON fails.
 	 */
-	protected String convertValueToJson(Object object) {
-		try {
-			return objectMapper.writeValueAsString(object);
-		} catch (JsonProcessingException e) {
-			throw new JsonException("convert value to", e);
+	fun convertValueToJson(obj: Any?): String {
+		return try {
+			objectMapper.writeValueAsString(obj)
+		} catch (e: JsonProcessingException) {
+			throw JsonException("convert value to", e)
 		}
 	}
 
@@ -100,20 +81,20 @@ public abstract class JsonBasedStorageStrategy implements StorageStrategy {
 	 * @throws JsonException When conversion from JSON fails, for example if the class is not supported.
 	 * @throws UnsupportedAttributeTypeException When the target class can't be found.
 	 */
-	protected Object convertValueFromJson(String type, String json) {
-		try {
-			var arrayClassOptional = ClassUtil.getArrayClassByName(type);
-			if (arrayClassOptional.isPresent()) {
-				Class<Object[]> arrayClass = arrayClassOptional.get();
-				return List.of(objectMapper.readValue(json, arrayClass));
+	fun convertValueFromJson(type: String, json: String): Any {
+		return try {
+			val arrayClassOptional = ClassUtil.getArrayClassByName<Any>(type)
+			if (arrayClassOptional.isPresent) {
+				val arrayClass = arrayClassOptional.get()
+				listOf(*objectMapper.readValue(json, arrayClass))
 			} else {
-				var clazz = Class.forName(type);
-				return objectMapper.readValue(json, clazz);
+				val clazz = Class.forName(type)
+				objectMapper.readValue(json, clazz)
 			}
-		} catch (JsonProcessingException e) {
-			throw new JsonException("convert value of type '" + type + "' from", e);
-		} catch (ClassNotFoundException e) {
-			throw new UnsupportedAttributeTypeException(type);
+		} catch (e: JsonProcessingException) {
+			throw JsonException("convert value of type '$type' from", e)
+		} catch (e: ClassNotFoundException) {
+			throw UnsupportedAttributeTypeException(type)
 		}
 	}
 }

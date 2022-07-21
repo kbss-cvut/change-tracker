@@ -1,77 +1,61 @@
-package cz.cvut.kbss.changetracking.strategy.storage;
+package cz.cvut.kbss.changetracking.strategy.storage
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import cz.cvut.kbss.changetracking.model.ChangeVector;
-import cz.cvut.kbss.changetracking.model.JsonChangeVector;
-import org.jetbrains.annotations.Nullable;
-
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.criteria.Predicate;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import com.fasterxml.jackson.databind.ObjectMapper
+import cz.cvut.kbss.changetracking.model.ChangeVector
+import cz.cvut.kbss.changetracking.model.JsonChangeVector
+import java.time.Instant
+import javax.persistence.EntityManager
+import javax.persistence.PersistenceContext
 
 /**
- * {@link JpaStorageStrategy} is a {@link StorageStrategy} implementation that uses the Java Persistence API for storing
+ * [JpaStorageStrategy] is a [StorageStrategy] implementation that uses the Java Persistence API for storing
  * change vectors in a single type with a catch-all column.
  */
-public class JpaStorageStrategy extends JsonBasedStorageStrategy {
+open class JpaStorageStrategy @JvmOverloads constructor(
+	@PersistenceContext protected val em: EntityManager,
+	objectMapper: ObjectMapper? = null
+) :
+	JsonBasedStorageStrategy(objectMapper) {
 
-	@PersistenceContext
-	protected final EntityManager em;
-
-	public JpaStorageStrategy(EntityManager em) {
-		this(em, null);
+	override fun saveVector(vector: JsonChangeVector) {
+		em.persist(vector)
 	}
 
-	public JpaStorageStrategy(EntityManager em, ObjectMapper objectMapper) {
-		super(objectMapper);
-		this.em = Objects.requireNonNull(em);
-	}
-
-	@Override
-	protected void saveVector(JsonChangeVector vector) {
-		em.persist(vector);
-	}
-
-	@Override
-	public List<ChangeVector<?>> getAllForObject(String objectType, String objectId) {
-		var cb = em.getCriteriaBuilder();
-		var cq = cb.createQuery(JsonChangeVector.class);
-		var root = cq.from(JsonChangeVector.class);
-		var predicates = List.of(
-			cb.equal(root.get("objectType"), objectType),
-			cb.equal(root.get("objectId"), objectId)
-		);
+	override fun getAllForObject(objectType: String, objectId: String): List<ChangeVector<*>> {
+		val cb = em.criteriaBuilder
+		val cq = cb.createQuery(JsonChangeVector::class.java)
+		val root = cq.from(JsonChangeVector::class.java)
+		val predicates = listOf(
+			cb.equal(root.get<Any>("objectType"), objectType),
+			cb.equal(root.get<Any>("objectId"), objectId)
+		)
 
 		cq
 			.select(root)
-			.where(cb.and(predicates.toArray(Predicate[]::new)))
-			.orderBy(cb.desc(root.get("timestamp")));
-		return convertVectorsFromJson(em.createQuery(cq).getResultList());
+			.where(cb.and(*predicates.toTypedArray()))
+			.orderBy(cb.desc(root.get<Any>("timestamp")))
+		return convertVectorsFromJson(em.createQuery(cq).resultList)
 	}
 
-	@Override
-	public List<ChangeVector<?>> getChangesSince(Instant timestamp) {
-		return getChangesOfTypeSince(timestamp, null);
+	override fun getChangesSince(timestamp: Instant): List<ChangeVector<*>> {
+		return getChangesOfTypeSince(timestamp, null)
 	}
 
-	@Override
-	public List<ChangeVector<?>> getChangesOfTypeSince(Instant timestamp, @Nullable String objectType) {
-		var cb = em.getCriteriaBuilder();
-		var cq = cb.createQuery(JsonChangeVector.class);
-		var root = cq.from(JsonChangeVector.class);
-		var predicates = new ArrayList<>(List.of(cb.greaterThanOrEqualTo(root.get("timestamp"), timestamp)));
+	override fun getChangesOfTypeSince(timestamp: Instant, objectType: String?): List<ChangeVector<*>> {
+		val cb = em.criteriaBuilder
+		val cq = cb.createQuery(JsonChangeVector::class.java)
+		val root = cq.from(JsonChangeVector::class.java)
+
+		val predicates = ArrayList(listOf(cb.greaterThanOrEqualTo(root.get("timestamp"), timestamp)))
+
 		if (objectType != null) {
-			predicates.add(cb.equal(root.get("objectType"), objectType));
+			predicates.add(cb.equal(root.get<Any>("objectType"), objectType))
 		}
 
 		cq
 			.select(root)
-			.where(cb.and(predicates.toArray(Predicate[]::new)))
-			.orderBy(cb.desc(root.get("timestamp")));
-		return convertVectorsFromJson(em.createQuery(cq).getResultList());
+			.where(cb.and(*predicates.toTypedArray()))
+			.orderBy(cb.desc(root.get<Any>("timestamp")))
+		return convertVectorsFromJson(em.createQuery(cq).resultList)
 	}
 }

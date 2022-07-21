@@ -37,13 +37,13 @@ class ChangeVectorTest {
 	@Test
 	void constructor_copyFromJson_resultEqualsOrigin() {
 		var origin = new JsonChangeVector();
-		origin.attributeName = TestIRIs.PROPERTY_OBJECT_HAS_OWNER;
-		origin.attributeType = String.class.getName();
-		origin.objectId = TestIRIs.INSTANCE_CAR;
-		origin.objectType = TestIRIs.CLASS_CAR;
-		origin.previousValue = TestIRIs.INSTANCE_MOTHER;
-		origin.timestamp = Instant.now();
-		origin.authorId = "author name";
+		origin.setAttributeName(TestIRIs.PROPERTY_OBJECT_HAS_OWNER);
+		origin.setAttributeType(String.class.getName());
+		origin.setObjectId(TestIRIs.INSTANCE_CAR);
+		origin.setObjectType(TestIRIs.CLASS_CAR);
+		origin.setPreviousValue(TestIRIs.INSTANCE_MOTHER);
+		origin.setTimestamp(Instant.now());
+		origin.setAuthorId("author name");
 
 		var result = new ChangeVector<>(origin, origin.getPreviousValue());
 

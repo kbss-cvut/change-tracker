@@ -1,22 +1,20 @@
-package cz.cvut.kbss.changetracking.strategy.entity;
-
-import java.util.Collection;
+package cz.cvut.kbss.changetracking.strategy.entity
 
 /**
- * Base abstract implementation of {@link EntityStrategy} including methods that are likely to be required for different
+ * Base abstract implementation of [EntityStrategy] including methods that are likely to be required for different
  * concrete implementations.
  *
  * @param <TField> Generic high-level type of attributes/fields used in the entity. If an implementation of this
- *                 strategy is not to use a metamodel, {@link java.lang.reflect.Field} should be used.
+ * strategy is not to use a metamodel, [java.lang.reflect.Field] should be used.
  */
-public abstract class BaseEntityStrategy<TField> implements EntityStrategy {
+abstract class BaseEntityStrategy<TField : Any> : EntityStrategy {
 	/**
 	 * Check if a class is supported for auditing and if not, throw
-	 * {@link cz.cvut.kbss.changetracking.exception.ClassNotAuditedException}.
+	 * [cz.cvut.kbss.changetracking.exception.ClassNotAuditedException].
 	 *
 	 * @throws cz.cvut.kbss.changetracking.exception.ClassNotAuditedException If the class is not supported.
 	 */
-	public abstract void checkClassSupported(Class<?> clazz);
+	abstract fun checkClassSupported(clazz: Class<*>)
 
 	/**
 	 * Get an application-unique string representation of the object's type. This MAY be the name of the object's class.
@@ -24,25 +22,23 @@ public abstract class BaseEntityStrategy<TField> implements EntityStrategy {
 	 * @param o The object.
 	 * @return An application-unique string representation of the object's type.
 	 */
-	public String getObjectType(Object o) {
-		return getTypeName(o.getClass());
-	}
+	fun getObjectType(o: Any): String = getTypeName(o.javaClass)
 
 	/**
 	 * Get an application-unique string representation of the class (type). This MAY be the name of the class.
 	 *
-	 * @see BaseEntityStrategy#getObjectType(Object)
+	 * @see BaseEntityStrategy.getObjectType
 	 */
-	public abstract String getTypeName(Class<?> clazz);
+	abstract fun getTypeName(clazz: Class<*>): String
 
 	/**
 	 * Get an identifier of the object which is unique within its type.
 	 *
 	 * @param o The object.
 	 * @return A unique identifier of the object within its type.
-	 * @see BaseEntityStrategy#getObjectType(Object)
+	 * @see BaseEntityStrategy.getObjectType
 	 */
-	public abstract String getObjectId(Object o);
+	abstract fun getObjectId(o: Any): String
 
 	/**
 	 * Get the attributes/fields of the supplied entity type.
@@ -50,17 +46,15 @@ public abstract class BaseEntityStrategy<TField> implements EntityStrategy {
 	 * @param clazz The entity type whose attributes to get.
 	 * @return An iterable collection of the attributes.
 	 */
-	public abstract Collection<TField> getAttributes(Class<?> clazz);
+	abstract fun getAttributes(clazz: Class<*>): Collection<TField>
 
 	/**
 	 * Get the attributes/fields of the supplied entity's type.
 	 *
-	 * @param object The entity whose attributes to get.
+	 * @param o The entity whose attributes to get.
 	 * @return An iterable collection of the attributes.
 	 */
-	public Collection<TField> getAttributes(Object object) {
-		return getAttributes(object.getClass());
-	}
+	fun getObjectAttributes(o: Any): Collection<TField> = getAttributes(o.javaClass)
 
 	/**
 	 * Get the name of an attribute/field.
@@ -68,7 +62,7 @@ public abstract class BaseEntityStrategy<TField> implements EntityStrategy {
 	 * @param field The attribute/field to get the name of.
 	 * @return The name of the attribute/field.
 	 */
-	public abstract String getAttributeName(TField field);
+	abstract fun getAttributeName(field: TField): String?
 
 	/**
 	 * Get the value of an attribute on an entity instance.
@@ -77,5 +71,5 @@ public abstract class BaseEntityStrategy<TField> implements EntityStrategy {
 	 * @param instance The entity.
 	 * @return The value of the attribute on the instance.
 	 */
-	public abstract Object getAttributeValue(TField field, Object instance);
+	abstract fun getAttributeValue(field: TField, instance: Any): Any?
 }
